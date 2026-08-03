@@ -1,0 +1,17 @@
+# dependencies
+node_modules/
+
+# frontend build
+dist/
+
+# rust / tauri build
+src-tauri/target/
+src-tauri/gen/schemas/
+
+# editor + os
+.DS_Store
+Thumbs.db
+*.log
+
+# generated icon source (regenerate with scripts/make-icon.mjs)
+icon-source.png
