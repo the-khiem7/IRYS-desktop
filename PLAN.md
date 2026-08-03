@@ -34,11 +34,11 @@ Probed this machine:
 | Node 24.18.0 / npm 11.16.0 | ✅ present |
 | git 2.55.0 | ✅ present |
 | Edge WebView2 runtime 150.x | ✅ present (no bundling needed for dev) |
-| **Rust / cargo / rustup** | ❌ **not installed** (no `~/.cargo`) |
-| **MSVC C++ build tools + Windows SDK** | ❌ **not installed** (no `link.exe`, no VS install dir) |
+| Rust / cargo / rustup | ✅ installed into the user profile (not on `PATH`) |
+| **MSVC C++ build tools + Windows SDK** | ❌ **cannot be installed — requires admin, withheld by policy** |
 
-Tauri cannot compile without both. Step 0 below installs them; it needs user
-consent (a several-GB Visual Studio Build Tools download) and a shell restart.
+Tauri cannot compile without a linker, so all Rust verification runs in CI
+instead. See *Status* below.
 
 ---
 
@@ -262,10 +262,10 @@ Pinned versions (verified against the registry today):
 
 ## Build order
 
-**0. Prereqs (needs your OK — installs, and a shell restart).**
-`rustup` via `winget install Rustlang.Rustup`, then
-`winget install Microsoft.VisualStudio.2022.BuildTools` with the *Desktop
-development with C++* workload. Verify: `rustc -V`, `cargo -V`, `link.exe` found.
+**0. Prereqs.** `rustup` installs fine without admin (`winget install
+Rustlang.Rustup`). MSVC Build Tools does **not** — it is machine-wide and this is
+a managed workstation without administrator rights, so the linker is unavailable
+locally and verification moves to CI. See *Status* below.
 
 **1. Scaffold + first light.** `git init`; scaffold Tauri 2 + Vue + TS; convert
 Vite to two entry points via `build.rollupOptions.input`. Gate: `npm run tauri
@@ -340,6 +340,75 @@ the template's `com.tauri.dev`, which blocks release builds).
 
 ---
 
+## Status — 2026-08-03
+
+**All eight phases are written and committed.** One gate is open, and it is the
+prerequisite, not the code.
+
+### Verified on this machine
+
+- `npx vue-tsc --noEmit` — clean.
+- `npx vite build` — clean. Confirms the two-entry split works: the break window
+  ships 3.08 kB of JS and carries none of the settings code.
+- `npm run icon` — generates the eye and fans out the full desktop icon set.
+
+### Not verified — blocked
+
+This is a managed corporate workstation where administrator rights are withheld
+by policy. Visual Studio Build Tools installs machine-wide (into `C:\ProgramData`
+and `C:\Program Files`), so it cannot be installed here at all — the attempt
+fails with `0x80070005 … _bootstrapper is denied` and installer exit 5002.
+Self-elevation is not a workaround: a standard account has no administrator token
+to elevate into. Verified that no MSVC toolchain and no Windows SDK exist
+anywhere on the machine.
+
+Rust **is** installed and working (in the user profile, which needs no admin);
+it is just not on `PATH`. But without a linker, **nothing** Rust-side runs — not
+`cargo build`, not `cargo test`, and not even `cargo check`, because
+`tauri-build`'s `build.rs` has to be linked and executed before checking begins.
+
+So every Rust file here is **unverified**. It has been read closely — two
+borrow-check errors in `core` were found and fixed by inspection — but reading is
+not compiling.
+
+### How to verify without local admin
+
+**CI is the practical answer, and it is already wired up.**
+`.github/workflows/ci.yml` runs on GitHub's `windows-latest` runner, which ships
+MSVC and the Windows SDK preinstalled. Every push gets `cargo fmt --check`,
+`cargo clippy -D warnings`, `cargo test`, `vue-tsc --noEmit`, and a real
+`tauri build`, with the MSI and NSIS installers uploaded as artifacts. That
+covers all of the automated verification in this plan and needs no rights on this
+machine.
+
+Download the installer artifact to exercise the app itself — a per-user NSIS
+install writes only under the user profile and needs no admin either.
+
+For local `cargo` work, Build Tools has to come through the normal software
+request channel; the workload needed is *Desktop development with C++*
+(`Microsoft.VisualStudio.Workload.VCTools`). Unofficial "portable MSVC" scripts
+do exist and need no admin, but the redistribution licensing is unsettled and
+that is not a risk worth taking on a company machine.
+
+### Expect the first compile to need fixes here
+
+Honest about where the risk is concentrated, in likelihood order:
+
+1. **`windows` crate signatures** in `platform/win.rs`. Whether `GetWindowRect`
+   returns `Result<()>` or `BOOL`, and whether `HWND` compares against
+   `HWND::default()`, both shift between `windows` releases. Small, local fixes.
+2. **Tauri window APIs** in `windows_mgr.rs` — `cursor_position()` and
+   `monitor_from_point()` are used to put the overlay on the monitor holding the
+   cursor. If either is not on `WebviewWindow` in 2.11, fall back to
+   `primary_monitor()` alone.
+3. **Capability minimality.** Each window is granted only
+   `core:event:allow-listen`/`allow-unlisten`, on the understanding that an app's
+   own `#[tauri::command]`s need no grant. If `invoke` is rejected at runtime,
+   add `core:default` to `capabilities/settings.json` and re-tighten from there.
+4. **`cargo clippy -- -D warnings`** has never run, so expect pedantic lints.
+
+---
+
 ## Open items I decided rather than blocked on
 
 - **Multi-monitor overlay** (one overlay per display) is *not* in scope — you
@@ -350,3 +419,12 @@ the template's `com.tauri.dev`, which blocks release builds).
   fullscreen defers 5 min; chime off; autostart off until you toggle it.
 - **Cross-platform:** Windows is the build target, but all OS access sits behind
   `platform/`, so macOS/Linux compile today and only need those two functions.
+- **Capabilities came out tighter than planned.** All store, autostart and
+  notification work happens in Rust, so the frontend needs no plugin permissions
+  and the three JS plugin packages were dropped from `package.json` entirely.
+  Each window gets `core:event` listen/unlisten and nothing else.
+- **`Effect::Chime` was dropped.** The break window plays the chime itself when it
+  sees the phase change, which removes a race where an emitted chime event could
+  arrive before the window had finished loading.
+- **`prewarn` was added to `Settings`** to carry the optional heads-up
+  notification the plan listed under plugins but left out of the settings shape.
