@@ -1,0 +1,65 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Irys",
+  "version": "0.1.0",
+  "identifier": "app.irys.desktop",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "withGlobalTauri": false,
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src ipc: http://ipc.localhost; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    },
+    "windows": [
+      {
+        "label": "settings",
+        "url": "index.html",
+        "title": "Irys",
+        "width": 520,
+        "height": 740,
+        "minWidth": 460,
+        "minHeight": 520,
+        "resizable": true,
+        "center": true,
+        "visible": false
+      },
+      {
+        "label": "break",
+        "url": "break.html",
+        "title": "Irys — rest your eyes",
+        "width": 380,
+        "height": 150,
+        "decorations": false,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "transparent": true,
+        "shadow": false,
+        "resizable": false,
+        "maximizable": false,
+        "minimizable": false,
+        "visible": false,
+        "focus": false
+      }
+    ]
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["msi", "nsis"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "shortDescription": "Your companion for healthier eyes",
+    "longDescription": "Irys keeps the 30-30-30 rule for you: every 30 minutes it reminds you to look about 30 feet (10 m) away for 30 seconds, so long days at a screen stop quietly straining your eyes.",
+    "windows": {
+      "webviewInstallMode": { "type": "downloadBootstrapper" }
+    }
+  }
+}

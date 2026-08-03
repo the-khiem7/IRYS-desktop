@@ -172,10 +172,6 @@ impl Machine {
         self.settings
     }
 
-    pub fn phase(&self) -> &Phase {
-        &self.phase
-    }
-
     pub fn is_paused(&self) -> bool {
         matches!(self.phase, Phase::Paused { .. })
     }
@@ -281,8 +277,14 @@ impl Machine {
     }
 
     pub fn resume(&mut self) -> Vec<Effect> {
-        if let Phase::Paused { resume_to } = &self.phase {
-            self.phase = (**resume_to).clone();
+        // Cloned out first so the borrow of `self.phase` ends before the
+        // assignment.
+        let resumed = match &self.phase {
+            Phase::Paused { resume_to } => Some((**resume_to).clone()),
+            _ => None,
+        };
+        if let Some(phase) = resumed {
+            self.phase = phase;
         }
         vec![Effect::Tray(self.tray_label())]
     }
@@ -340,7 +342,9 @@ impl Machine {
         let settings = settings.sanitized();
         self.settings = settings;
 
-        self.phase = match &self.phase {
+        // Computed into a local first: assigning to `self.phase` while the
+        // match still borrows it would not borrow-check.
+        let clamped = match &self.phase {
             Phase::Work { remaining } => Phase::Work {
                 remaining: (*remaining).min(settings.work_secs),
             },
@@ -360,6 +364,7 @@ impl Machine {
                 }),
             },
         };
+        self.phase = clamped;
 
         vec![Effect::Tray(self.tray_label())]
     }

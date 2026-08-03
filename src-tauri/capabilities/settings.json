@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "settings",
+  "description": "Settings window. Reads and writes preferences and drives the timer, all through Irys's own commands — which need no capability grant — so the only plugin permission it needs is listening for tick events.",
+  "windows": ["settings"],
+  "permissions": ["core:event:allow-listen", "core:event:allow-unlisten"]
+}

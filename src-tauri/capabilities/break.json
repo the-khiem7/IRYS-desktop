@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "break",
+  "description": "Break window. Deliberately the most restricted surface in the app: it is frameless, transparent and always-on-top, so it gets nothing beyond listening for tick events. Skip and Snooze go through Irys's own commands, and it has no access to the store, autostart, notifications, filesystem, shell or network.",
+  "windows": ["break"],
+  "permissions": ["core:event:allow-listen", "core:event:allow-unlisten"]
+}
