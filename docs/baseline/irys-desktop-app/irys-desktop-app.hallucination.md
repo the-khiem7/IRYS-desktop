@@ -30,6 +30,7 @@ install covered runtime.
 | **`invoke` and events work under minimal capabilities** | settings window shows a live countdown - resolves open question 1 |
 | **The overlay renders** | transparent frameless always-on-top did **not** come out black on Windows 11; ring sweeps, eye animates, Skip and Snooze visible |
 | A dev-profile build keeps its console | `windows_subsystem` is only set under `not(debug_assertions)` |
+| **The release pipeline works end to end** | `v0.1.0` published non-draft with both installers. The tag check accepted `v0.1.0` against `0.1.0`, and the Windows gate ran before publishing |
 
 ## Still unverified - do not treat as fact
 

@@ -76,7 +76,8 @@ directly:
 
 ## Target
 
-**v0.1.0 is tagged and releasing.** What is left is hands-on confirmation, led by
+**v0.1.0 is released**, with the NSIS and MSI installers published from a green
+Windows build. What is left is hands-on confirmation, led by
 escapability and then background accuracy - a break firing on time with every
 window minimised, which is the entire reason the clock lives in Rust.
 

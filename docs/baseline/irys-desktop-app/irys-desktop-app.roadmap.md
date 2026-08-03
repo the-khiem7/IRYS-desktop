@@ -9,8 +9,9 @@ code_ref: "519c761"
 
 # Roadmap
 
-Tagged **v0.1.0**. Everything automated passes and the app has been installed and
-run. What remains is hands-on verification, led by escapability.
+**v0.1.0 is released** - both installers published from a green Windows build.
+Everything automated passes and the app has been installed and run. What remains
+is hands-on verification, led by escapability.
 
 ## Phases
 
@@ -28,7 +29,7 @@ run. What remains is hands-on verification, led by escapability.
 | 9 | Windows CI | **fully green** | `3dd940b` | All 3 jobs SUCCESS, including the release profile and both installers. |
 | 10 | Docker verification path | **complete** | `2a77781` | `npm run verify`: frontend gates, fmt, clippy and 43 tests on a Linux toolchain, in seconds. Removed the dependency on CI logs that return 403 without a token. |
 | 11 | Local Windows builds via cargo-xwin | **complete** | `86447a8` | `npm run build:windows` produces a real PE32 NSIS installer from Linux. 386 s cold release, 249 s cold dev, **35 s incremental**. |
-| 12 | Release automation | **in progress** | `507ccc8`, `519c761` | `release.yml` fires on a `v*` tag: re-runs all gates on Windows, checks the tag matches `tauri.conf.json`, builds MSI + NSIS, publishes. First run is for `v0.1.0`. |
+| 12 | Release automation | **complete** | `507ccc8`, `519c761` | `release.yml` fired on `v0.1.0` and succeeded end to end: all gates on Windows, tag matched `tauri.conf.json`, both installers published non-draft. NSIS 1.31 MB, MSI 1.88 MB. |
 | 13 | Manual runtime verification | **partly done** | - | First install confirmed working; see *Remaining work*. |
 
 ## Dependencies
