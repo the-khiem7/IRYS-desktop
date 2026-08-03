@@ -4,7 +4,9 @@
 //! module is the only place that knows *how*. Keeping the two apart is what
 //! lets the whole schedule be tested without a window.
 
-use tauri::{AppHandle, Emitter, Manager};
+// `tray_by_id` is an inherent method on AppHandle, so no Manager import here;
+// `emit` comes from Emitter and `notification()` from NotificationExt.
+use tauri::{AppHandle, Emitter};
 use tauri_plugin_notification::NotificationExt;
 
 use crate::core::{Effect, PhaseKind, Snapshot};
