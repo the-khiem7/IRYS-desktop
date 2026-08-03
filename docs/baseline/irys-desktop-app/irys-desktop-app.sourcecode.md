@@ -3,8 +3,8 @@ baseline_schema: "2.0"
 pack: "irys-desktop-app"
 document: "sourcecode"
 status: "active"
-updated: "2026-08-03"
-code_ref: "3dd940b"
+updated: "2026-08-04"
+code_ref: "519c761"
 ---
 
 # Architecture and execution flow
@@ -146,6 +146,55 @@ dependency, so it scales from 56 px to a 4K overlay and needs nothing loosened i
 the CSP. The blink is a `scaleY` squash rather than a moving lid shape,
 specifically so it works on the translucent overlay veil where a
 background-matched lid would not.
+
+## Build and verification topology
+
+Not incidental scaffolding: the development machine cannot install MSVC, so how
+this project gets compiled is part of its architecture.
+
+```mermaid
+flowchart TD
+    SRC["source tree on the host"]
+
+    subgraph DOCKER["docker/ - Linux container, the dev loop"]
+        VERIFY["verify.sh<br/>vue-tsc · vite build<br/>fmt · clippy · 43 tests"]
+        XWIN["build-windows.sh<br/>cargo-xwin + lld-link<br/>-> NSIS installer"]
+    end
+
+    subgraph CI[".github/workflows - Windows runners"]
+        CIW["ci.yml<br/>every push"]
+        REL["release.yml<br/>on a v* tag"]
+    end
+
+    OUT["./out/*.exe"]
+    GH["GitHub Release<br/>MSI + NSIS"]
+
+    SRC --> VERIFY
+    SRC --> XWIN
+    XWIN --> OUT
+    SRC --> CIW
+    SRC --> REL
+    REL --> GH
+
+    VERIFY -.->|"cannot reach"| WIN["platform/win.rs<br/>#[cfg(windows)]"]
+    XWIN -->|"compiles"| WIN
+    CIW -->|"compiles + tests"| WIN
+```
+
+Two things worth internalising:
+
+- **`verify` runs every gate even when one fails.** Deliberately the opposite of
+  CI's fail-fast. A formatting error once hid a clippy error, which hid whether
+  the tests passed; three round-trips to learn one thing.
+- **`cargo-xwin` compiles `platform/win.rs`, `verify` does not.** The Linux
+  *target* cfg-gates that file out, but the cross-compile targets
+  `x86_64-pc-windows-msvc`, so `#[cfg(windows)]` is active. `verify` alone will
+  not catch a regression there.
+
+Caches live in Docker volumes rather than the bind mount: `CARGO_TARGET_DIR`,
+the cargo registry, the xwin SDK cache, `node_modules` and `dist`. The host's
+`node_modules` in particular must not be shared - it holds Windows-native
+`esbuild`/`rolldown` binaries that cannot execute in a Linux container.
 
 ## Security posture
 

@@ -2,28 +2,34 @@
 baseline_schema: "2.0"
 pack: "irys-desktop-app"
 document: "roadmap"
-status: "blocked"
-updated: "2026-08-03"
-code_ref: "3dd940b"
+status: "active"
+updated: "2026-08-04"
+code_ref: "519c761"
 ---
 
 # Roadmap
+
+Tagged **v0.1.0**. Everything automated passes and the app has been installed and
+run. What remains is hands-on verification, led by escapability.
 
 ## Phases
 
 | # | Phase | Status | Commit | Final evidence |
 |---|---|---|---|---|
-| 0 | Toolchain prerequisites | **abandoned by constraint** | - | Rust installed OK. MSVC Build Tools cannot be installed without admin; failed with `0x80070005 … _bootstrapper is denied`, installer exit 5002. Verified no MSVC or Windows SDK anywhere on the machine. Superseded by phase 9 (CI). |
+| 0 | Toolchain prerequisites | **abandoned by constraint** | - | MSVC Build Tools cannot be installed without admin: `0x80070005 … _bootstrapper is denied`, installer exit 5002. Superseded by phases 9 and 10. |
 | 1 | Scaffold (Vite 2-entry, `src-vue/`, Cargo, tsconfig) | complete | `dbc5c1b` | `vite build` emits `index.html` + `break.html` as separate bundles. |
-| 2 | Pure scheduling core + tests | **complete and verified** | `32f3faa` | `cargo test`: **43 passed, 0 failed** in 0.01 s. Covers both suppression rules, sleep/wake, pause/resume, clamping. |
-| 3 | Scheduler, tray, window manager, IPC, capabilities | **compiles clean** | `2693aeb` | `cargo clippy -D warnings` clean. Runtime behaviour still needs a desktop. |
-| 4 | Break UI - AnimatedEye, CountdownRing, RuleGuide, Overlay + Toast | code complete, **appearance unverified** | `9f74517` | `vue-tsc` clean; `vite build` clean. Never rendered. |
-| 5 | Settings window + persistence + autostart | code complete, **unverified** | `9f74517` | `vue-tsc` clean. Round-trip never exercised. |
-| 6 | Windows idle + fullscreen probes | **compiles verified** | `2c6d604` | Built on windows-msvc in CI. The hand-written Win32 FFI was correct first time: `GetWindowRect` does return `Result<()>`, `HWND == HWND::default()` is valid, `GetMonitorInfoW` returns `BOOL`. Runtime behaviour still needs a desktop. |
-| 7 | Icon generation | **complete** | `7c08bab` | `npm run icon` produced the full desktop set; 128px output inspected and reads as an eye. |
-| 8 | Frontend verification | **complete** | - | `vue-tsc --noEmit` clean; `vite build` clean (break bundle 3.08 kB, carries no settings code). |
-| 9 | Windows CI as the build gate | **fully green** | `3dd940b` | Run for `bf6c7b9`: all 3 jobs SUCCESS. Includes the release profile (`lto`, `panic = "abort"`) and `irys-windows-installers` at 2.83 MB. |
-| 10 | Docker verification path | **complete and proven** | `2a77781` | `docker compose -f docker/compose.yml run --rm -T verify`: fmt, clippy and 43 tests all pass on a Linux toolchain, in seconds. Removed the dependency on unreadable CI logs. |
+| 2 | Pure scheduling core + tests | **verified** | `32f3faa` | `cargo test`: **43 passed, 0 failed** in 0.01 s, on both Linux and windows-msvc. Covers both suppression rules, sleep/wake, pause/resume, clamping. |
+| 3 | Scheduler, tray, window manager, IPC, capabilities | **verified at runtime** | `2693aeb` | Clippy clean, and the first run confirmed the tray icon appears with a live-updating tooltip, and that `invoke` works under minimal capabilities. |
+| 4 | Break UI - AnimatedEye, CountdownRing, RuleGuide, Overlay + Toast | **overlay verified, toast not** | `9f74517` | Overlay renders correctly: dark veil, sweeping ring, animated eye, Skip and Snooze visible. Transparent always-on-top did not come out black on Windows 11. Toast style never displayed. |
+| 5 | Settings window + persistence + autostart | **renders and is live** | `9f74517` | Settings window renders and shows a live countdown, so IPC and event delivery both work. Persistence round-trip and autostart still unexercised. |
+| 6 | Windows idle + fullscreen probes | **compiles, runtime unverified** | `2c6d604` | Built on windows-msvc. The hand-written Win32 FFI was right first time: `GetWindowRect` returns `Result<()>`, `HWND == HWND::default()` is valid, `GetMonitorInfoW` returns `BOOL`. Whether they actually suppress a break is untested. |
+| 7 | Icon generation | **complete** | `7c08bab` | `npm run icon` produced the desktop set; the eye reads correctly at 128px and in the tray. |
+| 8 | Frontend verification | **complete** | - | `vue-tsc --noEmit` and `vite build` clean (break bundle 3.08 kB, carries no settings code). |
+| 9 | Windows CI | **fully green** | `3dd940b` | All 3 jobs SUCCESS, including the release profile and both installers. |
+| 10 | Docker verification path | **complete** | `2a77781` | `npm run verify`: frontend gates, fmt, clippy and 43 tests on a Linux toolchain, in seconds. Removed the dependency on CI logs that return 403 without a token. |
+| 11 | Local Windows builds via cargo-xwin | **complete** | `86447a8` | `npm run build:windows` produces a real PE32 NSIS installer from Linux. 386 s cold release, 249 s cold dev, **35 s incremental**. |
+| 12 | Release automation | **in progress** | `507ccc8`, `519c761` | `release.yml` fires on a `v*` tag: re-runs all gates on Windows, checks the tag matches `tauri.conf.json`, builds MSI + NSIS, publishes. First run is for `v0.1.0`. |
+| 13 | Manual runtime verification | **partly done** | - | First install confirmed working; see *Remaining work*. |
 
 ## Dependencies
 
@@ -33,51 +39,56 @@ flowchart LR
     P6["6 · OS probes"] --> P3
     P3 --> P4["4 · break UI"]
     P3 --> P5["5 · settings"]
-    P7["7 · icon"] --> P9["9 · CI"]
-    P4 --> P9
-    P5 --> P9
-    P8["8 · frontend verify"] --> P9
-    P9 --> GATE["Rust verified · installers built"]
+    P10["10 · docker verify"] --> P11["11 · cargo-xwin build"]
+    P4 --> P11
+    P5 --> P11
+    P11 --> P13["13 · manual verification"]
+    P6 --> P9["9 · windows CI"]
+    P9 --> P12["12 · release"]
+    P13 --> P12
 ```
 
-Phase 10 (Docker) verified phases 2-5 and 8. Phase 9 (Windows CI) remains the only
-gate for phase 6 and the installers.
+Docker (10, 11) covers the development loop. Windows CI (9, 12) covers the two
+things a Linux container structurally cannot: `platform/win.rs` and the MSI.
 
 ## Fixes already worked through
 
 Recorded so they are not rediscovered:
 
 1. **`npm ci` failed** - `package-lock.json` was never regenerated after three
-   `@tauri-apps/plugin-*` packages were dropped from `package.json`. Fixed by
-   `npm install`; reproduced locally first. *Whenever dependencies change, commit
-   the lockfile.*
-2. **`cargo fmt --all --check` failed** - the Rust was hand-written and rustfmt had
-   never run. Fixed, and verifiable locally since fmt never links.
+   `@tauri-apps/plugin-*` packages were dropped from `package.json`. *Whenever
+   dependencies change, commit the lockfile.*
+2. **`cargo fmt --all --check` failed** - the Rust was hand-written and rustfmt
+   had never run. Verifiable locally, since fmt parses but never links.
 3. **`cargo clippy -D warnings` failed** - one unused `Manager` import in
    `effects.rs`. `tray_by_id` is inherent on `AppHandle`, not a `Manager` method.
 4. **Windows containers** - investigated and ruled out; see `hallucination`.
+5. **`set -e` and `&&`** - `[ test ] && cmd` aborts a script when the test is
+   false. Written twice, in `build-windows.sh` and `release.yml`. Use `if`.
+6. **Vite 8 has no esbuild** - it builds on rolldown, so naming `'esbuild'` as the
+   minifier fails to resolve.
 
-## Next action
+## Remaining work
 
-**Every automated gate passes. The remaining work is hands-on, and cannot be
-automated away - it needs a real desktop.**
+All of it needs a desktop; none can be automated.
 
-Download `irys-windows-installers` from the CI run and use the **NSIS** installer
-(per-user, no admin). Then work the manual checks in `useguide`, in this order:
-
-1. **Escapability first.** Escape, Skip and Snooze on the fullscreen overlay. A
-   frameless, transparent, always-on-top window that cannot be dismissed is
-   indistinguishable from UI-spoofing malware, so this is the one check that
-   gates everything else.
-2. **Background accuracy.** Set `workSecs` to 60, minimise every window, work
-   elsewhere for a full interval, confirm the break still fires on time. This is
-   the entire justification for putting the timer in Rust.
-3. Both break styles render; tray tooltip counts down; idle-skip and
-   fullscreen-defer actually suppress; autostart writes and removes its `Run`
-   entry; sleep/wake produces no stale break.
-
-Open question 1 in `hallucination` resolves on first launch: if `invoke` is
-rejected, the per-window capabilities are too tight and need `core:default`.
+1. **Escapability.** Do Escape, Skip and Snooze actually dismiss the overlay? The
+   buttons render, but a press has never been observed. **Highest priority**: a
+   frameless, transparent, always-on-top window that cannot be dismissed is the
+   one failure that would make Irys feel like malware rather than a health app.
+   Thirty seconds with *Break now* and the Escape key settles it.
+2. **Background accuracy.** Set the interval to 1 minute, minimise every window,
+   work elsewhere, confirm the break still fires on time. This is the entire
+   justification for putting the clock in Rust rather than JavaScript.
+3. **Toast style** - never displayed. Switch to Corner and trigger a break.
+4. **Suppression at runtime** - idle-skip and fullscreen-defer. The logic is
+   unit-tested and the probes compile, but they have never run against a live
+   desktop.
+5. **Autostart** - toggle on, confirm the `HKCU\...\Run` entry, re-login, confirm
+   Irys is running, toggle off, confirm the entry is gone.
+6. **Sleep/wake** - suspend across a break boundary; confirm no stale break fires
+   on resume, which is what `SLEEP_GAP_SECS = 90` exists to prevent.
+7. **Persistence** - change a setting, restart, confirm it survived.
 
 Regression note: the Linux container does **not** compile `platform/win.rs`.
 Treat any change to that file as CI-verified only.

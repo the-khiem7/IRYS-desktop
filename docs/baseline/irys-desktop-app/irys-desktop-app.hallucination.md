@@ -3,49 +3,59 @@ baseline_schema: "2.0"
 pack: "irys-desktop-app"
 document: "hallucination"
 status: "active"
-updated: "2026-08-03"
-code_ref: "3dd940b"
+updated: "2026-08-04"
+code_ref: "519c761"
 ---
 
 # Open questions and closed decisions
 
 ## Now verified (was unverified)
 
-A Docker Linux toolchain closed most of this gap. Confirmed by execution, not
-inspection:
+Confirmed by execution, not inspection. A Docker Linux toolchain closed the
+compile-and-test gap; Windows CI covered `platform/win.rs`; the first manual
+install covered runtime.
 
 | Claim | Evidence |
 |---|---|
-| The 43 core tests pass | `cargo test`: **43 passed, 0 failed**, 0.01 s |
-| The crate compiles (everything not `#[cfg(windows)]`) | `cargo clippy` clean |
+| The 43 core tests pass | `cargo test`: **43 passed, 0 failed**, 0.01 s, on Linux **and** windows-msvc |
+| The whole crate compiles, `platform/win.rs` included | Windows CI green |
+| The hand-written Win32 FFI is correct | `GetWindowRect` returns `Result<()>`, `HWND == HWND::default()` is valid, `GetMonitorInfoW` returns `BOOL` - all three right first time |
 | Zero clippy warnings under `-D warnings` | one unused import found and fixed |
 | `cursor_position()` / `monitor_from_point()` exist on `WebviewWindow` | type-checks against Tauri 2.11 |
-| `StoreExt`, `autolaunch()`, `TrayIconBuilder`, `MenuItem::set_text` all exist as used | type-check |
-| Formatting is rustfmt-clean | `cargo fmt --all --check` passes |
+| `StoreExt`, `autolaunch()`, `TrayIconBuilder`, `MenuItem::set_text` exist as used | type-check |
 | The schedule logic is correct, not merely plausible | both suppression rules, sleep/wake, pause/resume and clamping all asserted |
+| Release profile (`lto`, `codegen-units = 1`, `panic = "abort"`) builds | `tauri build` on Windows, and locally via cargo-xwin |
+| **The NSIS installer works** | per-user install into local app data, no admin prompt |
+| **The tray icon appears** | eye icon visible, tooltip counts down live (`next break in 29:54`) |
+| **`invoke` and events work under minimal capabilities** | settings window shows a live countdown - resolves open question 1 |
+| **The overlay renders** | transparent frameless always-on-top did **not** come out black on Windows 11; ring sweeps, eye animates, Skip and Snooze visible |
+| A dev-profile build keeps its console | `windows_subsystem` is only set under `not(debug_assertions)` |
 
 ## Still unverified - do not treat as fact
 
-Small and well-bounded now: roughly 40 lines of Win32 FFI, plus anything needing a
-real desktop.
+Everything now compiles, all tests pass, and the app has been installed and run.
+What is left is behaviour that needs a person at a desktop.
 
 | Claim | Why it is still unverified |
 |---|---|
-| Idle and fullscreen detection actually suppress breaks at runtime | The *logic* consuming them is unit-tested and `platform/win.rs` now compiles, but the Win32 probes have never been executed against a live desktop |
-| Per-window capabilities are sufficient | Runtime concern; see open question 1 |
-| The tray icon appears and its tooltip updates | Needs a desktop session |
-| Either window looks as intended | Never rendered; no screenshot exists |
-| `codegen-units=1` + `lto` + `panic=abort` release profile builds | Only `tauri build` on Windows exercises it |
-| The MSI and NSIS installers produce a working install | Never built |
+| **Escape, Skip and Snooze dismiss the overlay** | The buttons render, but a press has never been observed. **The single most important gap**: an undismissable frameless always-on-top window is indistinguishable from UI-spoofing malware |
+| Breaks fire on time with every window minimised | The whole reason the clock is in Rust, and never actually tested that way |
+| Idle and fullscreen suppression work at runtime | The consuming logic is unit-tested and the probes compile, but they have never run against a live desktop |
+| The toast style renders correctly | Only the overlay has been displayed |
+| Autostart writes and removes its `HKCU\...\Run` entry | Never toggled |
+| Settings survive a restart | Persistence round-trip never exercised |
+| No stale break after sleep/wake | `SLEEP_GAP_SECS = 90` is unit-tested but never met a real suspend |
+| The MSI installs correctly | Only the NSIS build has been installed |
 
 ## Open questions
 
-1. **Do Irys's own `#[tauri::command]`s really need no capability grant?**
-   Each window is granted only `core:event:allow-listen` / `allow-unlisten`, on
-   the understanding that an app's own commands are exempt from the permission
-   system. If `invoke` is rejected at runtime, add `core:default` to
-   `capabilities/settings.json` and re-tighten from there. This is the one
-   security-relevant guess in the build, and it fails loudly rather than silently.
+1. ~~**Do Irys's own `#[tauri::command]`s really need no capability grant?**~~
+   **RESOLVED on the first run: yes, no grant is needed.** The settings window
+   shows a live countdown, which means both `invoke` and event delivery work with
+   only `core:event:allow-listen` / `allow-unlisten` granted. `core:default` was
+   not required. This had been the one security-relevant guess in the build, and
+   it resolved in favour of least privilege: neither window can reach the store,
+   the filesystem, the shell, or the network.
 
 2. **Will the WebAudio chime ever sound?** Webviews start an `AudioContext`
    suspended until a user gesture. The first chime of a session may be silent.
@@ -87,5 +97,11 @@ real desktop.
 | Local Rust verification | **Docker, Linux containers** | Docker Desktop has a per-user install path needing no admin. A Linux toolchain runs fmt, clippy and all 43 tests in seconds, replacing a five-minute CI round-trip whose logs were unreadable without a token. |
 | Windows containers for `platform/win.rs` | **Not possible here** | Verified: needs the privileged `com.docker.service` plus the Containers Windows feature, both admin-gated. The per-user install that works without admin is precisely the one that cannot switch engines. `-SwitchDaemon` fails with `context deadline exceeded`. Don't retry. |
 | Where `platform/win.rs` gets verified | **Windows CI only** | No local option exists. It is ~40 lines of FFI, so the exposure is bounded. |
+| Local Windows builds | **`cargo-xwin` in the Linux container** | Fetches Microsoft's Windows SDK and links with `lld-link`, producing a real PE32 NSIS installer without MSVC on the host. `llvm-rc` handles the Windows icon and manifest resources; `makensis` packages. Verified end to end. |
+| MSI locally | **Not possible** | WiX is Windows-only. NSIS is the build that matters anyway, since it installs per-user without admin. |
+| Local build profile | **Dev by default, release on request** | The release profile's `lto = true` and `codegen-units = 1` keep the binary small but disable parallel codegen and add a single-threaded whole-program pass. Measured: 386 s cold release, 249 s cold dev, **35 s incremental dev**. The dev build also keeps its console, which makes `eprintln!` visible on a first run. |
+| Division of labour | **Docker for development, CI for release** | Explicit owner decision. The container gives a 35 s edit-rebuild loop; CI covers `platform/win.rs` and the MSI, and publishes on a tag. |
+| Release trigger | **`v*` tag, published not drafted** | Pushing a version tag is already deliberate, so the tag is the gate. `release.yml` re-runs every gate on Windows first, because passing locally never compiled `platform/win.rs`. |
+| Version scheme | **`v0.1.0` for the first release** | Briefly set to `0.0.1` then reverted on request. The tag must carry all three semver parts: `release.yml` compares the stripped tag against `tauri.conf.json`, so `v0.1` would fail against `0.1.0`. |
 | Corporate identifiers in docs | **Scrubbed and prohibited** | A hostname and account names had been written into `PLAN.md`. Never pushed; removed by amend + `reflog expire` + `gc --prune=now`, verified absent from the whole object store. |
 | Diagram format in `PLAN.md` | **Mermaid for the architecture graph, ASCII for the file tree** | User's correction - a file tree reads better as ASCII. |

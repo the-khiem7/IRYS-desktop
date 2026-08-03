@@ -3,8 +3,8 @@ baseline_schema: "2.0"
 pack: "irys-desktop-app"
 document: "useguide"
 status: "active"
-updated: "2026-08-03"
-code_ref: "3dd940b"
+updated: "2026-08-04"
+code_ref: "519c761"
 ---
 
 # Contracts and procedures
@@ -152,14 +152,19 @@ POSIX `link` utility on `PATH` and reports `link: extra operand ...`, not
 
 ### Verify on CI (the Windows gate)
 
-`.github/workflows/ci.yml` on `windows-latest` is the only place `platform/win.rs`
-and the installers get built. Three jobs:
+Two workflows, both on `windows-latest`. Between them they are the only place
+`platform/win.rs` and the MSI get built.
+
+**`ci.yml`** - every push and PR:
 
 | Job | Runs |
 |---|---|
 | `frontend` | `npm ci`, `vue-tsc --noEmit`, `vite build` |
 | `rust` | `cargo fmt --check`, `cargo clippy --all-targets -D warnings`, `cargo test --all-features` |
 | `bundle` | `tauri build` → MSI + NSIS uploaded as `irys-windows-installers` |
+
+**`release.yml`** - on a `v*` tag, or manual dispatch. Re-runs all gates, checks
+the tag matches `tauri.conf.json`, builds both installers, publishes the release.
 
 Reading CI without a token: the public REST API exposes run and job metadata
 (`/actions/runs`, `/actions/runs/{id}/jobs`), which gives per-step pass/fail. Log
@@ -181,30 +186,71 @@ npm run icon      # make-icon.mjs -> icon-source.png -> tauri icon
 `--iris*` tokens in `src-vue/styles/theme.css`; change one, change both. It emits
 mobile icon sets that should be deleted - this is a desktop app.
 
-### Manual checks once the app runs
+### Cut a release
 
-Set `workSecs` to 60 first. In rough priority order:
+```bash
+# 1. Bump the version in ALL FOUR places, or release.yml fails the tag check:
+#    package.json, src-tauri/Cargo.toml, src-tauri/tauri.conf.json,
+#    and the irys entry in src-tauri/Cargo.lock
+# 2. Verify, then commit
+npm run verify
+# 3. Tag with all three semver parts - `v0.1`, would fail against `0.1.0`
+git tag -a v0.1.0 -m "..."
+git push origin main
+git push origin v0.1.0
+```
+
+`release.yml` then re-runs `fmt`, `clippy` and the tests **on Windows** before
+publishing. That is not redundant with `npm run verify`: the local loop never
+compiles `platform/win.rs`, so a tag's Windows build is genuinely the first one.
+It also builds the MSI, which Docker cannot, and publishes both installers.
+
+To refresh `Cargo.lock` after a version bump without a local linker:
+
+```bash
+docker compose -f docker/compose.yml run --rm -T shell \
+  bash -c 'cd /app/src-tauri && cargo metadata --format-version 1 > /dev/null'
+```
+
+Note `cargo metadata --no-deps` does **not** write the lockfile; only the
+full-graph resolve does.
+
+### Install without admin
+
+Use the **NSIS** build (`*-setup.exe`), from `./out` after a local build or from
+a release. It installs per-user, under the local app data directory, with no admin
+prompt - confirmed. The MSI is per-machine and needs admin. Both are unsigned, so
+SmartScreen warns once: *More info -> Run anyway*.
+
+### Manual checks
+
+Set the work interval to 1 minute first, and have `Ctrl+Shift+Esc` ready.
+
+**Confirmed working:**
+
+- Per-user install, no admin prompt
+- Tray icon appears; tooltip counts down live
+- Settings window renders with a live countdown, so `invoke` and events both work
+- Overlay renders: dark veil, sweeping ring, animated eye, Skip and Snooze visible
+
+**Still to do, in priority order:**
 
 1. **Always escapable** - Escape, Skip and Snooze each dismiss the overlay.
-   *Non-negotiable; verify every time.*
+   *Non-negotiable; verify on every change to the break window.* The buttons
+   render but a press has not been observed.
 2. **Background accuracy** - minimise everything, work elsewhere for a full
    interval, confirm the break still fires on time. This is the whole point, and
    the thing a JS timer would fail.
-3. **Fires and ends on time**, tray tooltip counts down, both styles render.
+3. **Toast style** - switch to Corner and trigger a break; never displayed yet.
 4. **Idle skip** - leave input alone past the threshold; no break, interval resets.
 5. **Fullscreen defer** - F11 a video across the break moment; the overlay is
    postponed, then fires after exiting.
 6. **Tray lifecycle** - close settings; breaks keep firing. Quit actually exits.
 7. **Autostart** - toggle on, confirm the `HKCU\...\Run` entry, re-login, confirm
    running; toggle off, confirm the entry is gone.
-8. **Sleep/wake** - suspend across a break boundary; no stale break on resume.
-9. **Footprint** - idle CPU near zero.
-
-### Install without admin
-
-Download the `bundle` job's artifact and use the **NSIS** installer - a per-user
-install writes only under the user profile. Unsigned, so SmartScreen will warn on
-first run until there is a code-signing certificate.
+8. **Persistence** - change a setting, restart, confirm it survived.
+9. **Sleep/wake** - suspend across a break boundary; no stale break on resume.
+10. **Footprint** - idle CPU near zero.
 
 ## Conventions to keep
 

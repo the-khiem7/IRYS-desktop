@@ -3,8 +3,8 @@ baseline_schema: "2.0"
 pack: "irys-desktop-app"
 document: "introduction"
 status: "active"
-updated: "2026-08-03"
-code_ref: "3dd940b"
+updated: "2026-08-04"
+code_ref: "519c761"
 ---
 
 # Irys - scope and current truth
@@ -76,8 +76,9 @@ directly:
 
 ## Target
 
-A green Windows CI run producing MSI and NSIS installers, then hands-on
-confirmation that breaks fire on schedule while every window is minimised.
+**v0.1.0 is tagged and releasing.** What is left is hands-on confirmation, led by
+escapability and then background accuracy - a break firing on time with every
+window minimised, which is the entire reason the clock lives in Rust.
 
 ## Constraints
 
@@ -89,7 +90,11 @@ confirmation that breaks fire on schedule while every window is minimised.
    Rust is installed (user profile, not on `PATH`) and is not the problem.
    This is a policy block, not a misconfiguration - do not retry the install or
    attempt elevation, and never request admin credentials.
-2. **Verification happens in CI**, on a runner that has MSVC. See `useguide`.
+2. **Docker is the development loop; CI is release automation.** A per-user Docker
+   Desktop install needs no admin, and a Linux toolchain runs every gate in
+   seconds plus cross-compiles a real Windows installer via `cargo-xwin`. CI
+   covers only what a Linux container structurally cannot: `platform/win.rs`,
+   which is `#[cfg(windows)]`, and the MSI, which needs WiX. See `useguide`.
 3. **No corporate identifiers in committed files** - no hostnames, account names,
    or domains, in docs, comments, or commit messages. Describe findings
    generically.
