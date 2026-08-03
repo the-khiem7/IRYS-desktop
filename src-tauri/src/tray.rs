@@ -52,7 +52,7 @@ pub fn build(app: &AppHandle) -> tauri::Result<()> {
 
 /// Relabel Pause/Resume, but only when the state actually flips.
 ///
-/// The tooltip is refreshed every second; the menu deliberately is not —
+/// The tooltip is refreshed every second; the menu deliberately is not -
 /// rewriting menu items at 1 Hz costs more than it is worth and can flicker
 /// while the menu is open.
 pub fn sync_pause_label(app: &AppHandle, paused: bool) {

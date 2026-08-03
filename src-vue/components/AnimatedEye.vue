@@ -2,8 +2,8 @@
 /**
  * The face of the app: a hand-drawn SVG eye that blinks and looks away.
  *
- * Every part is inline geometry and CSS keyframes — no image, no sprite, no
- * icon dependency — so it scales cleanly from the 22px tray-adjacent size in
+ * Every part is inline geometry and CSS keyframes - no image, no sprite, no
+ * icon dependency - so it scales cleanly from the 22px tray-adjacent size in
  * settings to filling a 4K overlay, and adds nothing to the CSP.
  *
  * The `resting` variant is the one shown during a break: the gaze drifts out to
@@ -190,7 +190,7 @@ withDefaults(
   }
 }
 
-/* With reduced motion the eye simply stays open and still — theme.css
+/* With reduced motion the eye simply stays open and still - theme.css
    collapses the durations, and this keeps the resting pupil from being stuck
    mid-animation. */
 @media (prefers-reduced-motion: reduce) {

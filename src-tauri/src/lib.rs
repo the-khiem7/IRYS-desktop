@@ -1,12 +1,12 @@
-//! Irys — a 30-30-30 rule companion that lives in the system tray.
+//! Irys - a 30-30-30 rule companion that lives in the system tray.
 //!
 //! Layering, outermost to innermost:
 //!
-//! - `commands` / `tray`      — ways the user asks for something
-//! - `scheduler`              — the 1 Hz clock and the one mutation path
-//! - `core`                   — the pure state machine (all the real rules)
-//! - `effects` / `windows_mgr`— carrying out what the core decided
-//! - `platform`              — the only place that talks to the OS
+//! - `commands` / `tray`      - ways the user asks for something
+//! - `scheduler`              - the 1 Hz clock and the one mutation path
+//! - `core`                   - the pure state machine (all the real rules)
+//! - `effects` / `windows_mgr`- carrying out what the core decided
+//! - `platform`              - the only place that talks to the OS
 
 mod commands;
 mod core;

@@ -4,7 +4,7 @@
 //! This lives in Rust rather than the webview on purpose: browser engines
 //! throttle timers in hidden, minimised, or background windows, and Irys spends
 //! almost all of its life with no window visible at all. A JS timer would drift
-//! silently — which would break the one thing this app exists to do.
+//! silently - which would break the one thing this app exists to do.
 
 use std::sync::{Mutex, MutexGuard};
 use std::time::{Duration, SystemTime};
@@ -40,7 +40,7 @@ impl AppState {
 pub fn dispatch(app: &AppHandle, action: impl FnOnce(&mut Machine) -> Vec<Effect>) {
     let state = app.state::<AppState>();
 
-    // Scoped so the lock is released before effects run — showing a window can
+    // Scoped so the lock is released before effects run - showing a window can
     // re-enter Tauri, and holding the machine lock across that invites deadlock.
     let (fx, snapshot) = {
         let mut machine = state.machine();

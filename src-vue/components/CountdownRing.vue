@@ -3,7 +3,7 @@
  * Progress ring around the break countdown.
  *
  * Driven by `stroke-dashoffset` with a one-second linear transition, which
- * matches the Rust tick rate exactly — so the ring sweeps continuously instead
+ * matches the Rust tick rate exactly - so the ring sweeps continuously instead
  * of stepping once per second.
  */
 
@@ -11,7 +11,7 @@ import { computed } from 'vue'
 
 const props = withDefaults(
   defineProps<{
-    /** Fraction still to go, 0–1. */
+    /** Fraction still to go, 0-1. */
     progress: number
     size?: number
     stroke?: number

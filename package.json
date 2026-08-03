@@ -2,7 +2,7 @@
   "name": "irys",
   "private": true,
   "version": "0.1.0",
-  "description": "Irys — your companion for healthier eyes. A 30-30-30 rule reminder that lives in your tray.",
+  "description": "Irys - your companion for healthier eyes. A 30-30-30 rule reminder that lives in your tray.",
   "type": "module",
   "scripts": {
     "dev": "vite",

@@ -12,7 +12,7 @@ withDefaults(defineProps<{ compact?: boolean }>(), { compact: false })
 
 const STEPS = [
   { n: '30', unit: 'minutes', text: 'Look up from the screen.' },
-  { n: '30', unit: 'feet', text: 'Find something far off — about 10 metres.' },
+  { n: '30', unit: 'feet', text: 'Find something far off - about 10 metres.' },
   { n: '30', unit: 'seconds', text: 'Hold your gaze there and let your eyes relax.' },
 ] as const
 </script>

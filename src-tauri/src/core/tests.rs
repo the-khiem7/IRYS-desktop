@@ -1,7 +1,7 @@
 //! Tests for the scheduling core.
 //!
-//! Because the core takes time and OS state as arguments, every scenario here —
-//! including sleep/wake and both suppression rules — runs instantly and
+//! Because the core takes time and OS state as arguments, every scenario here -
+//! including sleep/wake and both suppression rules - runs instantly and
 //! deterministically, with no window and no waiting.
 
 use super::*;
@@ -151,7 +151,7 @@ fn pausing_during_a_break_hides_it_and_resumes_into_work() {
     m.break_now();
     assert_eq!(notable(m.pause()), vec![Effect::HideBreak]);
     m.resume();
-    // Not three leftover seconds of break — a whole fresh interval.
+    // Not three leftover seconds of break - a whole fresh interval.
     assert_eq!(kind(&m), PhaseKind::Work);
     assert_eq!(remaining(&m), 60);
 }
@@ -348,7 +348,7 @@ fn idle_is_ignored_when_the_setting_is_off() {
 
 #[test]
 fn idle_does_not_cut_a_break_short() {
-    // The break runs its full 30 seconds even if you sit perfectly still —
+    // The break runs its full 30 seconds even if you sit perfectly still -
     // which is exactly what looking into the distance looks like to the OS.
     let mut m = machine_with(|s| s.skip_when_idle = true);
     m.break_now();
@@ -381,7 +381,7 @@ fn fullscreen_defers_the_break_rather_than_skipping_it() {
     );
     assert!(notable(fx).is_empty());
     assert_eq!(kind(&m), PhaseKind::Work);
-    // Still owed — re-checked after the snooze interval.
+    // Still owed - re-checked after the snooze interval.
     assert_eq!(remaining(&m), 30);
 
     tick_n(&mut m, 29);
@@ -554,7 +554,7 @@ fn tray_label_reflects_the_phase() {
     m.break_now();
     assert!(m.tray_label().contains("distance"));
     m.pause();
-    assert_eq!(m.tray_label(), "Irys — paused");
+    assert_eq!(m.tray_label(), "Irys - paused");
 }
 
 #[test]

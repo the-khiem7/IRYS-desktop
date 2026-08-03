@@ -1,7 +1,7 @@
 //! OS probes for the two suppression rules.
 //!
 //! The scheduling core is pure, so it cannot ask the OS anything. These two
-//! functions are the whole boundary — they are called once per tick and their
+//! functions are the whole boundary - they are called once per tick and their
 //! results are handed to the core as [`crate::core::Env`].
 
 #[cfg(windows)]

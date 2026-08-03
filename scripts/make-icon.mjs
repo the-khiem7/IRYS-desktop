@@ -32,7 +32,7 @@ function insideSquircle(x, y, half, radius) {
 
 /**
  * The almond. Height tapers as a power of horizontal distance, which produces
- * the pointed corners a real eye has — a plain ellipse reads as a lens.
+ * the pointed corners a real eye has - a plain ellipse reads as a lens.
  */
 function insideAlmond(u, v) {
   if (Math.abs(u) >= 1) return false
@@ -78,7 +78,7 @@ function sample(x, y) {
 
     if (r <= 0.18) rgb = PUPIL
 
-    // Specular highlight — the detail that makes this read as an eye and not
+    // Specular highlight - the detail that makes this read as an eye and not
     // as a target, even at 32px.
     if (Math.hypot(u + 0.14, v + 0.16) <= 0.075) rgb = GLINT
   }

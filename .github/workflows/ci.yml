@@ -2,7 +2,7 @@ name: CI
 
 # The development machine is a managed workstation without administrator
 # rights, so Visual Studio Build Tools cannot be installed there and no Rust
-# step can run locally — not even `cargo check`, since tauri-build's build.rs
+# step can run locally - not even `cargo check`, since tauri-build's build.rs
 # must be linked and executed first.
 #
 # GitHub's windows-latest runner ships MSVC and the Windows SDK preinstalled,
@@ -39,7 +39,7 @@ jobs:
         run: npx vite build
 
   rust:
-    name: Rust core — fmt, clippy, tests
+    name: Rust core - fmt, clippy, tests
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v5

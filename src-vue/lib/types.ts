@@ -2,7 +2,7 @@
  * Mirrors the serde types in `src-tauri/src/core/mod.rs`.
  *
  * Rust is the single source of truth for all of these. If you change a field
- * here, change it there too — `Settings` is serialised with
+ * here, change it there too - `Settings` is serialised with
  * `#[serde(rename_all = "camelCase")]`, so the names must match exactly.
  */
 

@@ -1,7 +1,7 @@
 [package]
 name = "irys"
 version = "0.1.0"
-description = "Irys — your companion for healthier eyes"
+description = "Irys - your companion for healthier eyes"
 edition = "2021"
 rust-version = "1.77.2"
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * The settings window — also the app's status page.
+ * The settings window - also the app's status page.
  *
  * Hidden at startup and opened from the tray; closing it hides rather than
  * quits, so Irys keeps its schedule with nothing on screen.
@@ -394,7 +394,7 @@ button {
   box-shadow: var(--shadow);
 }
 
-/* Checkbox restyled as a switch — same semantics, keyboard and screen readers
+/* Checkbox restyled as a switch - same semantics, keyboard and screen readers
    still see a checkbox. */
 .switch {
   position: relative;

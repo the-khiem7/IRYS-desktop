@@ -16,7 +16,7 @@ use windows::Win32::UI::WindowsAndMessaging::{GetForegroundWindow, GetWindowRect
 
 /// Seconds since the last keyboard or mouse input, system-wide.
 ///
-/// Returns 0 if the OS declines to answer — the safe direction, since it means
+/// Returns 0 if the OS declines to answer - the safe direction, since it means
 /// "assume the user is here" and the reminder still fires.
 pub fn idle_secs() -> u32 {
     let mut info = LASTINPUTINFO {
@@ -31,7 +31,7 @@ pub fn idle_secs() -> u32 {
         return 0;
     }
 
-    // SAFETY: no arguments, no out-params — cannot fail.
+    // SAFETY: no arguments, no out-params - cannot fail.
     let now = unsafe { GetTickCount64() };
 
     // `dwTime` is a 32-bit tick count that wraps roughly every 49 days, while
@@ -45,7 +45,7 @@ pub fn idle_secs() -> u32 {
     (delta_ms / 1000) as u32
 }
 
-/// Whether the foreground window covers its entire monitor — a video call,
+/// Whether the foreground window covers its entire monitor - a video call,
 /// presentation, or game that we should not cover with an overlay.
 ///
 /// Compares against the full monitor rect rather than the work area, so a

@@ -24,7 +24,7 @@ export function useTimer() {
       ready.value = true
     })
     .catch(() => {
-      // No snapshot yet is survivable — the next tick fixes it.
+      // No snapshot yet is survivable - the next tick fixes it.
       ready.value = true
     })
 

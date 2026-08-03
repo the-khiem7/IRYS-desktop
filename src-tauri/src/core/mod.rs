@@ -3,8 +3,8 @@
 //! This module is deliberately **pure**: no Tauri types, no I/O, no clock, no
 //! logging. Everything it needs from the outside world arrives as arguments
 //! ([`Env`] and `elapsed_secs`), and everything it wants done leaves as data
-//! ([`Effect`]). That makes the entire schedule — including every suppression
-//! rule and edge case — testable with `cargo test` and no window on screen.
+//! ([`Effect`]). That makes the entire schedule - including every suppression
+//! rule and edge case - testable with `cargo test` and no window on screen.
 //!
 //! The one rule to preserve when editing: *never* reach for the clock or the OS
 //! in here. Add a field to [`Env`] instead.
@@ -16,7 +16,7 @@ mod tests;
 
 /// Every 30 minutes…
 pub const DEFAULT_WORK_SECS: u32 = 30 * 60;
-/// …for 30 seconds. (The middle 30 — 30 feet — is guidance, not a timer.)
+/// …for 30 seconds. (The middle 30 - 30 feet - is guidance, not a timer.)
 pub const DEFAULT_BREAK_SECS: u32 = 30;
 pub const DEFAULT_SNOOZE_SECS: u32 = 5 * 60;
 pub const DEFAULT_IDLE_THRESHOLD_SECS: u32 = 60;
@@ -25,7 +25,7 @@ pub const DEFAULT_IDLE_THRESHOLD_SECS: u32 = 60;
 pub const PREWARN_LEAD_SECS: u32 = 30;
 
 /// A gap this large between ticks means the machine slept or the process was
-/// suspended — the user was not actually working, so the work interval restarts
+/// suspended - the user was not actually working, so the work interval restarts
 /// instead of firing a break that is already stale.
 pub const SLEEP_GAP_SECS: u32 = 90;
 
@@ -78,7 +78,7 @@ impl Default for Settings {
             skip_when_idle: true,
             idle_threshold_secs: DEFAULT_IDLE_THRESHOLD_SECS,
             defer_on_fullscreen: true,
-            // Off until the user asks for it — never register autostart silently.
+            // Off until the user asks for it - never register autostart silently.
             autostart: false,
         }
     }
@@ -115,7 +115,7 @@ pub enum Phase {
     Paused { resume_to: Box<Phase> },
 }
 
-/// Flattened phase for the frontend — the recursive `Paused` variant would be
+/// Flattened phase for the frontend - the recursive `Paused` variant would be
 /// awkward to consume in TypeScript.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -206,7 +206,7 @@ impl Machine {
                 if self.settings.skip_when_idle
                     && env.idle_secs >= self.settings.idle_threshold_secs
                 {
-                    // Away from the keyboard — the eyes are already resting, so
+                    // Away from the keyboard - the eyes are already resting, so
                     // reset rather than queue up an interruption for their return.
                     self.begin_work();
                 } else {
@@ -248,7 +248,7 @@ impl Machine {
     }
 
     /// Freeze the countdown, remembering where to pick up. Pausing during a
-    /// break dismisses the overlay and resumes into a fresh work interval —
+    /// break dismisses the overlay and resumes into a fresh work interval -
     /// resuming into three leftover seconds of break would be pointless.
     pub fn pause(&mut self) -> Vec<Effect> {
         if self.is_paused() {
@@ -425,12 +425,12 @@ impl Machine {
     fn tray_label(&self) -> String {
         match &self.phase {
             Phase::Work { remaining } => {
-                format!("Irys — next break in {}", fmt_mmss(*remaining))
+                format!("Irys - next break in {}", fmt_mmss(*remaining))
             }
             Phase::Break { remaining } => {
-                format!("Irys — look into the distance · {remaining}s")
+                format!("Irys - look into the distance · {remaining}s")
             }
-            Phase::Paused { .. } => "Irys — paused".to_owned(),
+            Phase::Paused { .. } => "Irys - paused".to_owned(),
         }
     }
 }

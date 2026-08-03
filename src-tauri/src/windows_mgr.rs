@@ -36,7 +36,7 @@ pub fn show_break(app: &AppHandle, style: BreakStyle) {
 
     if matches!(style, BreakStyle::Overlay) {
         // Focus so Escape works without needing a click first. This only
-        // requests window focus — it never captures raw input or blocks the OS,
+        // requests window focus - it never captures raw input or blocks the OS,
         // and Skip/Snooze stay visible, so the overlay is always escapable.
         let _ = win.set_focus();
     }

@@ -36,7 +36,7 @@ fn prewarn(app: &AppHandle) {
         .notification()
         .builder()
         .title("Irys")
-        .body("Eye break in 30 seconds — line up something far away to look at.")
+        .body("Eye break in 30 seconds - line up something far away to look at.")
         .show();
 }
 

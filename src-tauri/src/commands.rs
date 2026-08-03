@@ -19,7 +19,7 @@ pub fn get_settings(state: State<'_, AppState>) -> Settings {
     state.machine().settings()
 }
 
-/// Apply, persist, and return what was actually stored — which may differ from
+/// Apply, persist, and return what was actually stored - which may differ from
 /// what was sent, because the core clamps out-of-range values. The settings UI
 /// re-renders from the return value so the user sees the real state.
 #[tauri::command]
@@ -65,7 +65,7 @@ pub fn quit(app: AppHandle) {
 
 /// Keep the login-item registration in step with the setting.
 ///
-/// This writes a per-user `HKCU\...\Run` entry — no elevation, visible in Task
+/// This writes a per-user `HKCU\...\Run` entry - no elevation, visible in Task
 /// Manager's Startup tab, and removed again the moment the user turns it off.
 /// A failure here is reported but never blocks saving the rest of the settings.
 fn sync_autostart(app: &AppHandle, enabled: bool) {

@@ -6,7 +6,7 @@
  * has already sized and positioned the window by the time this renders, and
  * tells us which style it chose via the snapshot.
  *
- * The window is never destroyed — Rust shows and hides it — so this component
+ * The window is never destroyed - Rust shows and hides it - so this component
  * stays mounted for the whole session and reacts to phase changes.
  */
 
@@ -31,7 +31,7 @@ const progress = computed(() => {
 
 /**
  * A short two-note sine chime, synthesised rather than shipped as an audio
- * file — nothing to load, and nothing to loosen in the CSP for.
+ * file - nothing to load, and nothing to loosen in the CSP for.
  *
  * Webviews start an AudioContext suspended until there has been a user gesture,
  * so the very first chime of a session may be silent. Not worth surfacing: the
@@ -80,7 +80,7 @@ watch(
 
 /**
  * Escape always dismisses. The overlay is frameless, always-on-top and covers
- * the screen, so a guaranteed keyboard exit is not a nicety — it is the thing
+ * the screen, so a guaranteed keyboard exit is not a nicety - it is the thing
  * that keeps it from behaving like malware. Never remove this.
  */
 function onKeydown(event: KeyboardEvent) {
@@ -114,7 +114,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 
       <h1>Look into the distance</h1>
       <p class="lede">
-        About 10 metres away — out a window if you can. Let your eyes go soft and
+        About 10 metres away - out a window if you can. Let your eyes go soft and
         blink a few times.
       </p>
 

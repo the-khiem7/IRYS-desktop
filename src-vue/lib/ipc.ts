@@ -15,7 +15,7 @@ export const getSnapshot = (): Promise<Snapshot> => invoke('get_snapshot')
 export const getSettings = (): Promise<Settings> => invoke('get_settings')
 
 /**
- * Returns what was actually stored, which can differ from what was sent —
+ * Returns what was actually stored, which can differ from what was sent -
  * the Rust core clamps out-of-range durations. Always re-render from the
  * result rather than assuming the request was applied verbatim.
  */

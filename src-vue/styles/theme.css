@@ -20,7 +20,7 @@
   --radius: 12px;
   --radius-lg: 20px;
 
-  /* Long, soft easing — nothing in this app should feel abrupt. */
+  /* Long, soft easing - nothing in this app should feel abrupt. */
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   --surface: #ffffff;

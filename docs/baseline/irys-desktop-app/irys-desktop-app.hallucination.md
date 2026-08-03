@@ -9,7 +9,7 @@ code_ref: "3dd940b"
 
 # Open questions and closed decisions
 
-## Unverified claims — do not treat as fact
+## Unverified claims - do not treat as fact
 
 Everything Rust-side is written but never compiled. Specifically, these are
 *design intentions* with no execution behind them:
@@ -36,8 +36,8 @@ Everything Rust-side is written but never compiled. Specifically, these are
 
 2. **Will the WebAudio chime ever sound?** Webviews start an `AudioContext`
    suspended until a user gesture. The first chime of a session may be silent.
-   Judged acceptable — the setting is off by default and the visual reminder is
-   the real signal — but if a chime is wanted reliably, it needs a different
+   Judged acceptable - the setting is off by default and the visual reminder is
+   the real signal - but if a chime is wanted reliably, it needs a different
    mechanism.
 
 3. **Is the toast's fixed taskbar allowance right?** Tauri 2 exposes monitor
@@ -57,11 +57,11 @@ Everything Rust-side is written but never compiled. Specifically, these are
 
 | Decision | Resolution | Rationale |
 |---|---|---|
-| Where the timer lives | **Rust, not JavaScript** | Webviews throttle timers in hidden/minimised windows, and Irys spends its life with no window shown. A JS timer would drift silently — fatal for the app's only job. |
+| Where the timer lives | **Rust, not JavaScript** | Webviews throttle timers in hidden/minimised windows, and Irys spends its life with no window shown. A JS timer would drift silently - fatal for the app's only job. |
 | Break presentation | **Both Overlay and Toast, user-selectable** | User's explicit choice: "both, let user choose on their need". One component tree serves both. |
 | Configurability | **Full settings window + persistence** | User's explicit choice over hard-coded 30/30/30. Also makes a 1-minute test interval possible. |
 | Background behaviours | **All four: tray, autostart, idle-skip, fullscreen-defer** | User selected all four. |
-| Idle vs fullscreen handling | **Asymmetric: idle *resets*, fullscreen *defers*** | Idle means the eyes already rested, so a reminder is noise. A fullscreen app means the break is still owed — just not over someone's presentation. |
+| Idle vs fullscreen handling | **Asymmetric: idle *resets*, fullscreen *defers*** | Idle means the eyes already rested, so a reminder is noise. A fullscreen app means the break is still owed - just not over someone's presentation. |
 | Frontend directory | **`src-vue/`, not `src/`** | User's explicit request. `src-tauri/src/` keeps its name; cargo fixes it. |
 | Plugin work location | **All in Rust; no JS plugin packages** | Deviation from plan, strictly tighter. Frontend then needs zero plugin permissions, so the always-on-top break window has no path to store, filesystem, shell or network. |
 | `Effect::Chime` | **Dropped from the effect enum** | The break window plays the chime on the phase change it observes, removing a race where the event could arrive before the window finished loading. |
@@ -72,4 +72,4 @@ Everything Rust-side is written but never compiled. Specifically, these are
 | `windows` crate version | **Pinned `0.61`** | Matches Tauri's own dependency so cargo shares one compiled copy. |
 | Local MSVC install | **Abandoned** | Policy block, not a fixable error. Verification moved to CI. |
 | Corporate identifiers in docs | **Scrubbed and prohibited** | A hostname and account names had been written into `PLAN.md`. Never pushed; removed by amend + `reflog expire` + `gc --prune=now`, verified absent from the whole object store. |
-| Diagram format in `PLAN.md` | **Mermaid for the architecture graph, ASCII for the file tree** | User's correction — a file tree reads better as ASCII. |
+| Diagram format in `PLAN.md` | **Mermaid for the architecture graph, ASCII for the file tree** | User's correction - a file tree reads better as ASCII. |

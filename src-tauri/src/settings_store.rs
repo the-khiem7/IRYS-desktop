@@ -1,7 +1,7 @@
 //! Settings persistence.
 //!
 //! One JSON file in the app config directory holding user preferences and
-//! nothing else — no credentials, no tokens, no telemetry. A missing,
+//! nothing else - no credentials, no tokens, no telemetry. A missing,
 //! unreadable, or hand-mangled file falls back to defaults rather than failing
 //! to start, and anything that does load is clamped by
 //! [`Settings::sanitized`](crate::core::Settings::sanitized).
