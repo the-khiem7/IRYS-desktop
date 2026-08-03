@@ -49,27 +49,37 @@ consent (a several-GB Visual Studio Build Tools download) and a shell restart.
 drift — fatal for the one thing this app does. The Rust side ticks
 independently of any window's visibility, and can run with zero windows shown.
 
-```
-                         ┌──────────────────────────── src-tauri (Rust) ──┐
-                         │                                                │
-  OS probes ───────────► │  scheduler.rs   1 s tokio interval             │
-  (idle secs,            │       │  feeds Env { idle_secs, fullscreen }   │
-   fullscreen?)          │       ▼                                        │
-                         │  core/mod.rs    Machine::tick(env, elapsed)    │
-                         │                 pure · no Tauri · no clock     │
-                         │       │  returns Vec<Effect>                   │
-                         │       ▼                                        │
-                         │  effect executor ──► tray tooltip              │
-                         │       │              show/hide break window    │
-                         │       │              emit "irys://tick"        │
-                         └───────┼────────────────────────────────────────┘
-                                 │ typed events + invoke
-             ┌───────────────────┴───────────────────┐
-             ▼                                       ▼
-     break.html (Break.vue)                  index.html (App.vue)
-     always-on-top · frameless               settings, hidden by default
-     AnimatedEye + CountdownRing             opened from tray
-     Overlay OR Toast style                  closing hides, never exits
+```mermaid
+flowchart TD
+    subgraph OS["OS probes — src-tauri/src/platform/win.rs"]
+        IDLE["platform::idle_secs<br/>GetLastInputInfo"]
+        FULL["platform::fullscreen_active<br/>GetForegroundWindow"]
+    end
+
+    subgraph RUST["src-tauri — Rust owns the clock"]
+        SCHED["scheduler.rs<br/>1 s tokio interval<br/>real Instant delta"]
+        CORE["core/mod.rs<br/>Machine::tick<br/>pure — no Tauri, no I/O, no clock"]
+        EXEC["effect executor"]
+    end
+
+    TRAY["Tray icon<br/>live tooltip + menu"]
+
+    subgraph WEB["src-vue — Vue is presentation only"]
+        BRK["break.html — Break.vue<br/>frameless · always-on-top<br/>AnimatedEye + CountdownRing<br/>Overlay OR Toast"]
+        SET["index.html — App.vue<br/>settings, hidden by default<br/>opened from tray, close hides"]
+    end
+
+    IDLE --> SCHED
+    FULL --> SCHED
+    SCHED -->|"Env: idle_secs + fullscreen_active"| CORE
+    CORE -->|"returns a list of Effects"| EXEC
+    EXEC -->|"update tooltip"| TRAY
+    EXEC -->|"show / hide + position"| BRK
+    EXEC -->|"emit irys://tick"| BRK
+    EXEC -->|"emit irys://tick"| SET
+    BRK -->|"invoke: skip · snooze"| SCHED
+    SET -->|"invoke: apply_settings · pause · break_now"| SCHED
+    TRAY -->|"invoke: pause · break_now · show settings"| SCHED
 ```
 
 ### The pure core (the part that must be right)
@@ -207,18 +217,18 @@ Irys/
 ├─ package.json  vite.config.ts  tsconfig.json  .gitignore
 ├─ index.html                      # settings entry
 ├─ break.html                      # break entry
-├─ src/
+├─ src-vue/                        # Vue frontend
 │  ├─ main.ts  break.ts
 │  ├─ App.vue  Break.vue
 │  ├─ components/AnimatedEye.vue  CountdownRing.vue  RuleGuide.vue  SettingRow.vue
 │  ├─ composables/useTimer.ts  useSettings.ts
 │  ├─ lib/ipc.ts  lib/types.ts
 │  └─ styles/theme.css
-└─ src-tauri/
+└─ src-tauri/                      # Rust backend
    ├─ Cargo.toml  tauri.conf.json  build.rs
    ├─ capabilities/settings.json  capabilities/break.json
    ├─ icons/                       # template icons for dev
-   └─ src/
+   └─ src/                         # stays `src` — name fixed by cargo
       ├─ main.rs  lib.rs
       ├─ core/mod.rs               # Machine · Phase · Settings · Effect (pure)
       ├─ core/tests.rs             # the real test surface
@@ -226,6 +236,12 @@ Irys/
       ├─ windows_mgr.rs  tray.rs  commands.rs  settings_store.rs
       └─ platform/mod.rs  platform/win.rs  platform/stub.rs
 ```
+
+**On the `src-vue/` rename:** `create-tauri-app` scaffolds the frontend as `src/`,
+so step 1 renames it and updates three places — `vite.config.ts`
+(`build.rollupOptions.input` for both entries, plus the `@` alias), `tsconfig.json`
+(`include`), and the `<script type="module" src="/src-vue/…">` tags in the two HTML
+entries. The Rust crate's own `src-tauri/src/` keeps its name; cargo requires it.
 
 Pinned versions (verified against the registry today):
 
