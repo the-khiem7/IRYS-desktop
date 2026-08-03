@@ -60,10 +60,7 @@ pub fn sync_pause_label(app: &AppHandle, paused: bool) {
         return;
     };
 
-    let mut last = state
-        .paused
-        .lock()
-        .unwrap_or_else(|err| err.into_inner());
+    let mut last = state.paused.lock().unwrap_or_else(|err| err.into_inner());
 
     if *last == paused {
         return;

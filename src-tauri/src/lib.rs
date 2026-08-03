@@ -73,7 +73,10 @@ pub fn run() {
             // "last window closed means exit" behaviour would kill the app the
             // first time the user closes settings. An explicit `app.exit(code)`
             // carries a code and is let through.
-            if let RunEvent::ExitRequested { code: None, api, .. } = event {
+            if let RunEvent::ExitRequested {
+                code: None, api, ..
+            } = event
+            {
                 api.prevent_exit();
             }
         });
