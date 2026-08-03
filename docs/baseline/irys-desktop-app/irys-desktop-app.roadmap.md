@@ -19,10 +19,10 @@ code_ref: "3dd940b"
 | 3 | Scheduler, tray, window manager, IPC, capabilities | **compiles clean** | `2693aeb` | `cargo clippy -D warnings` clean. Runtime behaviour still needs a desktop. |
 | 4 | Break UI - AnimatedEye, CountdownRing, RuleGuide, Overlay + Toast | code complete, **appearance unverified** | `9f74517` | `vue-tsc` clean; `vite build` clean. Never rendered. |
 | 5 | Settings window + persistence + autostart | code complete, **unverified** | `9f74517` | `vue-tsc` clean. Round-trip never exercised. |
-| 6 | Windows idle + fullscreen probes | code complete, **still unverified** | `2c6d604` | `#[cfg(windows)]`, so the Linux container never parses it. The only Rust left unproven. All `unsafe` confined here. |
+| 6 | Windows idle + fullscreen probes | **compiles verified** | `2c6d604` | Built on windows-msvc in CI. The hand-written Win32 FFI was correct first time: `GetWindowRect` does return `Result<()>`, `HWND == HWND::default()` is valid, `GetMonitorInfoW` returns `BOOL`. Runtime behaviour still needs a desktop. |
 | 7 | Icon generation | **complete** | `7c08bab` | `npm run icon` produced the full desktop set; 128px output inspected and reads as an eye. |
 | 8 | Frontend verification | **complete** | - | `vue-tsc --noEmit` clean; `vite build` clean (break bundle 3.08 kB, carries no settings code). |
-| 9 | Windows CI as the build gate | **partially green** | `3dd940b` | Frontend job passes. Rust job now reaches `platform/win.rs`, which nothing else can compile. |
+| 9 | Windows CI as the build gate | **fully green** | `3dd940b` | Run for `bf6c7b9`: all 3 jobs SUCCESS. Includes the release profile (`lto`, `panic = "abort"`) and `irys-windows-installers` at 2.83 MB. |
 | 10 | Docker verification path | **complete and proven** | `2a77781` | `docker compose -f docker/compose.yml run --rm -T verify`: fmt, clippy and 43 tests all pass on a Linux toolchain, in seconds. Removed the dependency on unreadable CI logs. |
 
 ## Dependencies
@@ -59,21 +59,25 @@ Recorded so they are not rediscovered:
 
 ## Next action
 
-**Watch the Windows CI run for `bf6c7b9` - it is the first build of
-`platform/win.rs`.**
+**Every automated gate passes. The remaining work is hands-on, and cannot be
+automated away - it needs a real desktop.**
 
-Everything ahead of it now passes, so this run reaches code that has never been
-compiled anywhere. Expect failures only in:
+Download `irys-windows-installers` from the CI run and use the **NSIS** installer
+(per-user, no admin). Then work the manual checks in `useguide`, in this order:
 
-1. **`platform/win.rs` signatures** - whether `GetWindowRect` returns
-   `Result<()>` or `BOOL`, and whether `HWND == HWND::default()` is valid. Both
-   move between `windows` crate releases. Fix by reading the 0.61 docs for the
-   exact return types.
-2. **`tauri build` bundling** - WiX/NSIS toolchain download, and the release
-   profile (`lto`, `panic = "abort"`) compiling for the first time.
+1. **Escapability first.** Escape, Skip and Snooze on the fullscreen overlay. A
+   frameless, transparent, always-on-top window that cannot be dismissed is
+   indistinguishable from UI-spoofing malware, so this is the one check that
+   gates everything else.
+2. **Background accuracy.** Set `workSecs` to 60, minimise every window, work
+   elsewhere for a full interval, confirm the break still fires on time. This is
+   the entire justification for putting the timer in Rust.
+3. Both break styles render; tray tooltip counts down; idle-skip and
+   fullscreen-defer actually suppress; autostart writes and removes its `Run`
+   entry; sleep/wake produces no stale break.
 
-Note the Linux container will *not* catch regressions in `platform/win.rs`. Treat
-any change to that file as CI-only verified.
+Open question 1 in `hallucination` resolves on first launch: if `invoke` is
+rejected, the per-window capabilities are too tight and need `core:default`.
 
-After green: download the NSIS artifact (per-user install, needs no admin) and run
-the manual checks in `useguide`, starting with escapability.
+Regression note: the Linux container does **not** compile `platform/win.rs`.
+Treat any change to that file as CI-verified only.

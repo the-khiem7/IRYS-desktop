@@ -36,18 +36,23 @@ gap that local policy created (see `useguide`). What that changed:
 | `cargo fmt --all --check` | ✅ passes - runs locally too, since fmt needs no linker |
 | `cargo clippy -D warnings` | ✅ passes in container, zero warnings |
 | **43 core tests** | ✅ **43 passed, 0 failed** - first execution, 0.01 s |
-| Everything not `#[cfg(windows)]` | ✅ compiles |
-| **`platform/win.rs`** | ❌ **still unverified** - cfg-gated out on Linux |
-| **Windows tray / overlay / installers** | ❌ **CI and manual only** |
+| `platform/win.rs` | ✅ compiles on windows-msvc in CI |
+| Release profile (`lto`, `panic = "abort"`) | ✅ builds |
+| MSI + NSIS installers | ✅ built, 2.83 MB artifact |
+| **Runtime behaviour** | ❌ **never observed** - needs a desktop |
 | **Either window's appearance** | ❌ **never seen** |
 
-Two things this settled that had been guesses: the Tauri APIs
-(`cursor_position`, `monitor_from_point`, `StoreExt`, `autolaunch`,
-`TrayIconBuilder`) all type-check, and the schedule logic is genuinely correct
-rather than merely plausible.
+Every automated gate in the plan passes. Three things this settled that had been
+guesses: the Tauri APIs (`cursor_position`, `monitor_from_point`, `StoreExt`,
+`autolaunch`, `TrayIconBuilder`) all type-check; the hand-written Win32 FFI was
+right first time (`GetWindowRect` returns `Result<()>`, `HWND == HWND::default()`
+is valid, `GetMonitorInfoW` returns `BOOL`); and the schedule logic is genuinely
+correct rather than merely plausible.
 
-What remains genuinely unverified is now small and well-bounded: roughly 40 lines
-of Win32 FFI, plus everything that needs a real desktop.
+What remains is **only** what a machine cannot check for itself: whether the tray
+appears, whether the overlay renders and is escapable, whether the Win32 probes
+actually suppress a break, and whether it all still fires on time with every
+window minimised.
 
 ## Target
 

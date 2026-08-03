@@ -31,8 +31,7 @@ real desktop.
 
 | Claim | Why it is still unverified |
 |---|---|
-| `platform/win.rs` compiles against `windows` 0.61 | `#[cfg(windows)]`, so a Linux compiler never parses it. `GetWindowRect` returning `Result<()>` vs `BOOL`, and `HWND == HWND::default()`, both shift between crate releases |
-| Idle and fullscreen detection actually suppress breaks | The *logic* consuming them is now tested; the Win32 probes feeding it are not |
+| Idle and fullscreen detection actually suppress breaks at runtime | The *logic* consuming them is unit-tested and `platform/win.rs` now compiles, but the Win32 probes have never been executed against a live desktop |
 | Per-window capabilities are sufficient | Runtime concern; see open question 1 |
 | The tray icon appears and its tooltip updates | Needs a desktop session |
 | Either window looks as intended | Never rendered; no screenshot exists |
