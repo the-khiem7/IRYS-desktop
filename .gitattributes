@@ -1,0 +1,11 @@
+# This repo is developed on Windows with core.autocrlf=true, which would give
+# shell scripts CRLF endings on checkout. A Linux container then fails with
+# "bad interpreter: /bin/sh^M", so force LF on anything a container runs.
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.yml text eol=lf
+
+# Generated icons are binary; never let git touch them.
+*.png binary
+*.ico binary
+*.icns binary

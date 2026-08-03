@@ -1,0 +1,10 @@
+# Keep the build context small and free of host-specific artefacts.
+node_modules
+dist
+src-tauri/target
+src-tauri/gen
+
+.git
+docs
+*.md
+icon-source.png

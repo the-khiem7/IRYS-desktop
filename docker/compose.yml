@@ -1,0 +1,28 @@
+# Local verification without GitHub Actions.
+#
+#   docker compose -f docker/compose.yml run --rm verify        # all Rust gates
+#   docker compose -f docker/compose.yml run --rm verify bash   # poke around
+#
+# The source tree is bind-mounted, so edits on the host are picked up with no
+# rebuild. Cargo's registry and target directory live in named volumes: that
+# keeps Linux artefacts out of the host's Windows-MSVC target/ directory, and
+# makes the second run fast.
+
+services:
+  verify:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: irys-verify:local
+    volumes:
+      - ../src-tauri:/app/src-tauri
+      - cargo-registry:/build/cargo
+      - cargo-target:/build/target
+    # Bind mounts would otherwise shadow the image's prebuilt dist/, which
+    # tauri-build needs to exist.
+    working_dir: /app/src-tauri
+    init: true
+
+volumes:
+  cargo-registry:
+  cargo-target:
