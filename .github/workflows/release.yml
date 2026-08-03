@@ -94,7 +94,10 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event.inputs.tag || github.ref_name }}
-          draft: true
+          # Publishes directly rather than as a draft. Pushing a v* tag is
+          # already a deliberate act, so the tag is the gate. Flip to true if you
+          # would rather review each release before it goes public.
+          draft: false
           generate_release_notes: true
           files: |
             src-tauri/target/release/bundle/msi/*.msi

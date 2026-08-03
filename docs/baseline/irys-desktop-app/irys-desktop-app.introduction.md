@@ -39,8 +39,8 @@ gap that local policy created (see `useguide`). What that changed:
 | `platform/win.rs` | ✅ compiles on windows-msvc in CI |
 | Release profile (`lto`, `panic = "abort"`) | ✅ builds |
 | MSI + NSIS installers | ✅ built, 2.83 MB artifact |
-| **Runtime behaviour** | ❌ **never observed** - needs a desktop |
-| **Either window's appearance** | ❌ **never seen** |
+| Runtime, first manual run | ✅ **it works** - see below |
+| Remaining manual checks | ❌ escapability, background accuracy, suppression, autostart |
 
 Every automated gate in the plan passes. Three things this settled that had been
 guesses: the Tauri APIs (`cursor_position`, `monitor_from_point`, `StoreExt`,
@@ -49,10 +49,30 @@ right first time (`GetWindowRect` returns `Result<()>`, `HWND == HWND::default()
 is valid, `GetMonitorInfoW` returns `BOOL`); and the schedule logic is genuinely
 correct rather than merely plausible.
 
-What remains is **only** what a machine cannot check for itself: whether the tray
-appears, whether the overlay renders and is escapable, whether the Win32 probes
-actually suppress a break, and whether it all still fires on time with every
-window minimised.
+### First manual run - confirmed working
+
+Installed from the locally cross-compiled NSIS build on 2026-08-04. Observed
+directly:
+
+- **Per-user install**, into the local app data directory, with no admin prompt
+- **Tray icon appears** and its tooltip counts down live (`Irys - next break in
+  29:54`), so `default_window_icon()` was not the risk it looked like
+- **`invoke` and event delivery work** - the settings window shows a live
+  countdown. This resolves the one security-relevant guess in the build: the
+  minimal `core:event`-only capabilities really are sufficient for an app's own
+  commands
+- **The overlay renders correctly** - a transparent, frameless, always-on-top
+  window did *not* come out as a black rectangle on Windows 11. The countdown
+  ring sweeps, the eye animates, and Skip and Snooze are both visible
+- **Console window present** in the dev-profile build, as intended
+
+### Still to check by hand
+
+- **Escapability** - Escape, Skip and Snooze actually dismissing. The buttons
+  render, but pressing them is unconfirmed. This is the highest-priority check
+- **Background accuracy** - a break firing on time with every window minimised,
+  which is the entire reason the timer lives in Rust
+- Toast style, idle-skip, fullscreen-defer, autostart, sleep/wake
 
 ## Target
 
