@@ -64,17 +64,41 @@ rejected.
 
 ## Procedures
 
+### The division of labour
+
+**Docker is the development loop. CI is release automation.** Deliberate: the
+container gives an immediate answer, while CI covers the two things a Linux
+container structurally cannot.
+
+| | Docker (local) | Windows CI |
+|---|---|---|
+| `vue-tsc`, `vite build` | ✅ | ✅ |
+| `cargo fmt`, `clippy`, 43 tests | ✅ seconds | ✅ minutes |
+| NSIS installer | ✅ via `cargo-xwin` | ✅ |
+| `platform/win.rs` | ❌ cfg-gated out | ✅ only here |
+| MSI | ❌ WiX is Windows-only | ✅ |
+| Running the app | ❌ no desktop | ❌ no desktop |
+
 ### Verify locally in Docker (the fast loop - prefer this)
 
 ```bash
-docker compose -f docker/compose.yml run --rm -T verify        # all Rust gates
-docker compose -f docker/compose.yml run --rm verify bash      # poke around
+npm run verify          # vue-tsc, vite build, cargo fmt, clippy, 43 tests
+npm run build:windows   # cross-compile the NSIS installer into ./out
+npm run shell           # bash inside the container
 ```
 
-Runs `cargo fmt --check`, `cargo clippy -D warnings` and `cargo test` on a Linux
-toolchain, because the development machine has no MSVC linker and therefore cannot
-run *any* cargo command that links - not even `cargo check`, since `tauri-build`'s
-`build.rs` must be linked and executed first.
+The development machine has no MSVC linker, so it cannot run *any* cargo command
+that links - not even `cargo check`, since `tauri-build`'s `build.rs` must be
+linked and executed first. A Linux toolchain sidesteps that.
+
+`npm run build:windows` cross-compiles a genuine Windows binary with
+`cargo-xwin`, which fetches Microsoft's Windows SDK headers and import libraries
+and links with `lld-link`. `XWIN_ACCEPT_LICENSE=1` in the Dockerfile accepts that
+SDK licence; it was an explicit owner decision, recorded in the file itself rather
+than left implicit.
+
+Output lands in `./out` on the host, because the build directory lives in a Docker
+volume the host cannot see.
 
 `verify.sh` runs all three gates even when an earlier one fails. That is
 deliberate and the opposite of CI's fail-fast: a formatting failure used to hide

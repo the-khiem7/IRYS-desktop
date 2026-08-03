@@ -1,28 +1,59 @@
-# Local verification without GitHub Actions.
+# The local development loop, so neither linting nor building needs GitHub.
 #
-#   docker compose -f docker/compose.yml run --rm verify        # all Rust gates
-#   docker compose -f docker/compose.yml run --rm verify bash   # poke around
+#   docker compose -f docker/compose.yml run --rm -T verify          # fmt, clippy, 43 tests
+#   docker compose -f docker/compose.yml run --rm -T build-windows   # NSIS installer -> ./out
+#   docker compose -f docker/compose.yml run --rm shell              # poke around
 #
-# The source tree is bind-mounted, so edits on the host are picked up with no
-# rebuild. Cargo's registry and target directory live in named volumes: that
-# keeps Linux artefacts out of the host's Windows-MSVC target/ directory, and
-# makes the second run fast.
+# CI is kept for release automation, not for this loop.
+#
+# The repo is bind-mounted so host edits are picked up with no rebuild. Three
+# directories are deliberately overlaid with volumes instead:
+#
+#   node_modules  the host's copy holds Windows binaries that cannot run here
+#   dist          keeps container and host frontend builds from fighting
+#   /build/*      cargo, target and the Windows SDK cache, kept away from the
+#                 host's src-tauri/target, which belongs to a different toolchain
+
+x-toolchain: &toolchain
+  build:
+    context: ..
+    dockerfile: docker/Dockerfile
+  image: irys-toolchain:local
+  init: true
+  volumes:
+    - ..:/app
+    - node-modules:/app/node_modules
+    - frontend-dist:/app/dist
+    - cargo-registry:/build/cargo
+    - cargo-target:/build/target
+    - xwin-cache:/build/xwin
+    - tauri-cache:/build/cache
 
 services:
+  # Fast gate: everything that is not #[cfg(windows)], including all 43 tests.
   verify:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile
-    image: irys-verify:local
-    volumes:
-      - ../src-tauri:/app/src-tauri
-      - cargo-registry:/build/cargo
-      - cargo-target:/build/target
-    # Bind mounts would otherwise shadow the image's prebuilt dist/, which
-    # tauri-build needs to exist.
-    working_dir: /app/src-tauri
-    init: true
+    <<: *toolchain
+    command: verify
+
+  # Cross-compiles a Windows installer into ./out on the host. Defaults to the
+  # dev profile, which is far faster and plenty for behaviour testing; pass
+  # `release` for the optimised build that actually ships.
+  build-windows:
+    <<: *toolchain
+    command: build-windows
+
+  build-windows-release:
+    <<: *toolchain
+    command: build-windows release
+
+  shell:
+    <<: *toolchain
+    command: bash
 
 volumes:
+  node-modules:
+  frontend-dist:
   cargo-registry:
   cargo-target:
+  xwin-cache:
+  tauri-cache:

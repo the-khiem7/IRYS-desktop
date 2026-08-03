@@ -12,6 +12,11 @@
     "tauri": "tauri",
     "app": "tauri dev",
     "app:build": "tauri build",
+    "icon": "node scripts/make-icon.mjs && tauri icon icon-source.png",
+    "verify": "docker compose -f docker/compose.yml run --rm -T verify",
+    "build:windows": "docker compose -f docker/compose.yml run --rm -T build-windows",
+    "build:windows:release": "docker compose -f docker/compose.yml run --rm -T build-windows-release",
+    "shell": "docker compose -f docker/compose.yml run --rm shell",
     "icon": "node scripts/make-icon.mjs && tauri icon icon-source.png"
   },
   "dependencies": {
