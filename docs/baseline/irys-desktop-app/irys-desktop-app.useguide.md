@@ -82,10 +82,31 @@ container structurally cannot.
 ### Verify locally in Docker (the fast loop - prefer this)
 
 ```bash
-npm run verify          # vue-tsc, vite build, cargo fmt, clippy, 43 tests
-npm run build:windows   # cross-compile the NSIS installer into ./out
-npm run shell           # bash inside the container
+npm run verify                  # vue-tsc, vite build, cargo fmt, clippy, 43 tests
+npm run build:windows           # NSIS installer into ./out - dev profile, fast
+npm run build:windows:release   # optimised, same as what ships
+npm run shell                   # bash inside the container
 ```
+
+Measured build times:
+
+| Build | Time |
+|---|---|
+| Cold, release profile | 386 s |
+| Cold, dev profile | 249 s |
+| **Incremental, dev profile** | **35 s** (14 s compile + packaging) |
+
+Use the dev profile while iterating. The release profile sets `lto = true` and
+`codegen-units = 1` in `Cargo.toml` to keep the shipped binary small, which
+disables parallel codegen and adds a largely single-threaded whole-program pass.
+The dev build is 3.1 MB against 1.4 MB and slower at runtime, neither of which
+matters when the question is whether Escape dismisses the overlay.
+
+A dev build also **keeps its console window**, because `main.rs` only sets
+`windows_subsystem = "windows"` under `not(debug_assertions)`. That makes
+`eprintln!` diagnostics visible, so prefer it for a first run: if the tray icon
+never appears or `invoke` is rejected by the capability config, the console says
+why instead of failing silently.
 
 The development machine has no MSVC linker, so it cannot run *any* cargo command
 that links - not even `cargo check`, since `tauri-build`'s `build.rs` must be

@@ -1,0 +1,112 @@
+name: Release
+
+# Tag-triggered release automation.
+#
+#   git tag v0.1.0 && git push origin v0.1.0
+#
+# Day-to-day verification and installer builds happen locally in Docker
+# (`npm run verify`, `npm run build:windows`), so this workflow exists for the
+# two things a Linux container structurally cannot do:
+#
+#   - compile src-tauri/src/platform/win.rs, which is #[cfg(windows)]
+#   - build the MSI, which needs WiX and is Windows-only
+#
+# ci.yml still runs on every push; this only fires on a version tag.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to build (must already exist)'
+        required: true
+
+permissions:
+  contents: write # required to create the release
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  release:
+    name: Build and publish Windows installers
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - run: npm ci
+
+      # Re-run the gates before publishing. The local Docker loop cannot reach
+      # platform/win.rs, so this is the first Windows compile of any given tag
+      # and must not be skipped just because it passed locally.
+      - name: Verify before publishing
+        working-directory: src-tauri
+        run: |
+          cargo fmt --all --check
+          cargo clippy --all-targets --all-features -- -D warnings
+          cargo test --all-features
+
+      # Fails the release if the tag does not match the version that would ship,
+      # which is otherwise an easy and confusing mistake.
+      - name: Check the tag matches tauri.conf.json
+        shell: bash
+        env:
+          # Passed via env rather than interpolated into the script, so a tag
+          # containing shell metacharacters cannot execute anything.
+          INPUT_TAG: ${{ github.event.inputs.tag }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          raw="${INPUT_TAG:-$REF_NAME}"
+          tag="${raw#v}"
+          conf=$(node -p "require('./src-tauri/tauri.conf.json').version")
+          echo "tag=$tag  tauri.conf.json=$conf"
+          if [ "$tag" != "$conf" ]; then
+            echo "::error::Tag $tag does not match tauri.conf.json version $conf"
+            exit 1
+          fi
+
+      - name: Build installers
+        run: npx tauri build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: irys-windows-installers
+          path: |
+            src-tauri/target/release/bundle/msi/*.msi
+            src-tauri/target/release/bundle/nsis/*.exe
+          if-no-files-found: error
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
+          draft: true
+          generate_release_notes: true
+          files: |
+            src-tauri/target/release/bundle/msi/*.msi
+            src-tauri/target/release/bundle/nsis/*.exe
+          body: |
+            Irys keeps the 30-30-30 rule for you: every 30 minutes, look about
+            30 feet (10 m) away for 30 seconds.
+
+            **Which file to download**
+
+            - `*-setup.exe` (NSIS) - installs for the current user, no admin needed
+            - `*.msi` - installs for all users, requires admin
+
+            Both are **unsigned**, so SmartScreen will warn on first run:
+            More info -> Run anyway.
