@@ -30,7 +30,9 @@ export default defineConfig({
 
   build: {
     target: 'esnext',
-    minify: process.env.TAURI_ENV_DEBUG ? false : 'esbuild',
+    // Boolean rather than a named minifier: Vite 8 builds on rolldown and does
+    // not ship esbuild, so naming it explicitly fails to resolve.
+    minify: !process.env.TAURI_ENV_DEBUG,
     sourcemap: !!process.env.TAURI_ENV_DEBUG,
     // Two entries: the settings window never loads break code and vice versa.
     rollupOptions: {

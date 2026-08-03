@@ -1,0 +1,116 @@
+/*
+ * Shared design tokens for both windows.
+ *
+ * Everything here is self-contained: system fonts only, no webfont, no remote
+ * asset, no icon library. That keeps the Content-Security-Policy strict
+ * (`default-src 'self'`) and the installed app small.
+ */
+
+:root {
+  --font: ui-sans-serif, system-ui, 'Segoe UI Variable Text', 'Segoe UI',
+    -apple-system, sans-serif;
+  --font-num: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', monospace;
+
+  /* The eye. Teal reads as calm and stays distinguishable for the most common
+     forms of colour-vision deficiency, where a green/red pairing would not. */
+  --iris: #35b3ae;
+  --iris-deep: #1f7f7c;
+  --iris-glow: #7fe3de;
+
+  --radius: 12px;
+  --radius-lg: 20px;
+
+  /* Long, soft easing — nothing in this app should feel abrupt. */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --surface: #ffffff;
+  --surface-sunken: #f4f6f8;
+  --border: #e2e6ea;
+  --text: #161d24;
+  --text-dim: #5b6875;
+  --shadow: 0 1px 2px rgb(16 29 36 / 6%), 0 8px 24px rgb(16 29 36 / 8%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface: #171b21;
+    --surface-sunken: #11151a;
+    --border: #2a313a;
+    --text: #e9eef3;
+    --text-dim: #98a4b0;
+    --shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 12px 32px rgb(0 0 0 / 45%);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Nothing in either window is a document, so text selection and the context
+   menu only ever look like glitches. Inputs opt back in below. */
+body {
+  user-select: none;
+  cursor: default;
+}
+
+input,
+textarea {
+  user-select: text;
+}
+
+.irys-settings {
+  background: var(--surface-sunken);
+  overflow: hidden;
+}
+
+/* The break window is transparent at the OS level; the veil is drawn in Vue. */
+.irys-break {
+  background: transparent;
+  overflow: hidden;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--iris);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-num);
+}
+
+/* Respect the OS setting. An app about resting your eyes has no business
+   pushing motion at someone who asked for less of it. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

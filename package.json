@@ -11,13 +11,11 @@
     "typecheck": "vue-tsc --noEmit",
     "tauri": "tauri",
     "app": "tauri dev",
-    "app:build": "tauri build"
+    "app:build": "tauri build",
+    "icon": "node scripts/make-icon.mjs && tauri icon icon-source.png"
   },
   "dependencies": {
     "@tauri-apps/api": "2.11.1",
-    "@tauri-apps/plugin-autostart": "2.5.1",
-    "@tauri-apps/plugin-notification": "2.3.3",
-    "@tauri-apps/plugin-store": "2.4.4",
     "vue": "3.5.40"
   },
   "devDependencies": {
