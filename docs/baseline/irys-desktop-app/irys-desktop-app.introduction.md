@@ -23,27 +23,36 @@ Vue is presentation only.
 
 All eight planned phases are **implemented and committed** - 2,689 lines of Rust
 across 11 files, 1,510 lines of Vue/TS across 13 files, 43 `#[test]` cases in the
-core. Working tree clean at `3dd940b`.
+core.
 
-Verification is **split**, and this is the single most important fact in this pack:
+**The Rust now compiles and its tests pass.** A Docker Linux toolchain closed the
+gap that local policy created (see `useguide`). What that changed:
 
 | Layer | State |
 |---|---|
-| Frontend types (`vue-tsc --noEmit`) | ✅ verified clean locally |
-| Frontend build (`vite build`) | ✅ verified clean locally - 2 entries, break bundle 3.08 kB |
+| Frontend types (`vue-tsc --noEmit`) | ✅ clean, locally and in container |
+| Frontend build (`vite build`) | ✅ clean - 2 entries, break bundle 3.08 kB |
 | Icon generation (`npm run icon`) | ✅ verified, output inspected visually |
-| **All Rust** | ❌ **never compiled** |
-| **CI workflow** | ❌ **never run** |
+| `cargo fmt --all --check` | ✅ passes - runs locally too, since fmt needs no linker |
+| `cargo clippy -D warnings` | ✅ passes in container, zero warnings |
+| **43 core tests** | ✅ **43 passed, 0 failed** - first execution, 0.01 s |
+| Everything not `#[cfg(windows)]` | ✅ compiles |
+| **`platform/win.rs`** | ❌ **still unverified** - cfg-gated out on Linux |
+| **Windows tray / overlay / installers** | ❌ **CI and manual only** |
 | **Either window's appearance** | ❌ **never seen** |
 
-The Rust has been read closely - two real borrow-check errors in `core` were
-found and fixed by inspection - but reading is not compiling. Treat every Rust
-claim in this pack as *intended* behaviour, not observed behaviour.
+Two things this settled that had been guesses: the Tauri APIs
+(`cursor_position`, `monitor_from_point`, `StoreExt`, `autolaunch`,
+`TrayIconBuilder`) all type-check, and the schedule logic is genuinely correct
+rather than merely plausible.
+
+What remains genuinely unverified is now small and well-bounded: roughly 40 lines
+of Win32 FFI, plus everything that needs a real desktop.
 
 ## Target
 
-A green CI run producing MSI and NSIS installers, then hands-on confirmation that
-breaks fire on schedule while every window is minimised.
+A green Windows CI run producing MSI and NSIS installers, then hands-on
+confirmation that breaks fire on schedule while every window is minimised.
 
 ## Constraints
 

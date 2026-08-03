@@ -15,14 +15,15 @@ code_ref: "3dd940b"
 |---|---|---|---|---|
 | 0 | Toolchain prerequisites | **abandoned by constraint** | - | Rust installed OK. MSVC Build Tools cannot be installed without admin; failed with `0x80070005 … _bootstrapper is denied`, installer exit 5002. Verified no MSVC or Windows SDK anywhere on the machine. Superseded by phase 9 (CI). |
 | 1 | Scaffold (Vite 2-entry, `src-vue/`, Cargo, tsconfig) | complete | `dbc5c1b` | `vite build` emits `index.html` + `break.html` as separate bundles. |
-| 2 | Pure scheduling core + tests | code complete, **unverified** | `32f3faa` | 43 `#[test]` cases written covering both suppression rules, sleep/wake, pause/resume, clamping. **Never executed.** |
-| 3 | Scheduler, tray, window manager, IPC, capabilities | code complete, **unverified** | `2693aeb` | Never compiled. |
+| 2 | Pure scheduling core + tests | **complete and verified** | `32f3faa` | `cargo test`: **43 passed, 0 failed** in 0.01 s. Covers both suppression rules, sleep/wake, pause/resume, clamping. |
+| 3 | Scheduler, tray, window manager, IPC, capabilities | **compiles clean** | `2693aeb` | `cargo clippy -D warnings` clean. Runtime behaviour still needs a desktop. |
 | 4 | Break UI - AnimatedEye, CountdownRing, RuleGuide, Overlay + Toast | code complete, **appearance unverified** | `9f74517` | `vue-tsc` clean; `vite build` clean. Never rendered. |
 | 5 | Settings window + persistence + autostart | code complete, **unverified** | `9f74517` | `vue-tsc` clean. Round-trip never exercised. |
-| 6 | Windows idle + fullscreen probes | code complete, **unverified** | `2c6d604` | Never compiled. All `unsafe` confined to `platform/win.rs`. |
+| 6 | Windows idle + fullscreen probes | code complete, **still unverified** | `2c6d604` | `#[cfg(windows)]`, so the Linux container never parses it. The only Rust left unproven. All `unsafe` confined here. |
 | 7 | Icon generation | **complete** | `7c08bab` | `npm run icon` produced the full desktop set; 128px output inspected and reads as an eye. |
 | 8 | Frontend verification | **complete** | - | `vue-tsc --noEmit` clean; `vite build` clean (break bundle 3.08 kB, carries no settings code). |
-| 9 | CI as the build gate | workflow written, **never run** | `3dd940b` | `.github/workflows/ci.yml`: 3 jobs - frontend, Rust fmt/clippy/test, installers. |
+| 9 | Windows CI as the build gate | **partially green** | `3dd940b` | Frontend job passes. Rust job now reaches `platform/win.rs`, which nothing else can compile. |
+| 10 | Docker verification path | **complete and proven** | `2a77781` | `docker compose -f docker/compose.yml run --rm -T verify`: fmt, clippy and 43 tests all pass on a Linux toolchain, in seconds. Removed the dependency on unreadable CI logs. |
 
 ## Dependencies
 
@@ -39,30 +40,40 @@ flowchart LR
     P9 --> GATE["Rust verified · installers built"]
 ```
 
-Phase 9 is the gate everything unverified now depends on.
+Phase 10 (Docker) verified phases 2-5 and 8. Phase 9 (Windows CI) remains the only
+gate for phase 6 and the installers.
+
+## Fixes already worked through
+
+Recorded so they are not rediscovered:
+
+1. **`npm ci` failed** - `package-lock.json` was never regenerated after three
+   `@tauri-apps/plugin-*` packages were dropped from `package.json`. Fixed by
+   `npm install`; reproduced locally first. *Whenever dependencies change, commit
+   the lockfile.*
+2. **`cargo fmt --all --check` failed** - the Rust was hand-written and rustfmt had
+   never run. Fixed, and verifiable locally since fmt never links.
+3. **`cargo clippy -D warnings` failed** - one unused `Manager` import in
+   `effects.rs`. `tray_by_id` is inherent on `AppHandle`, not a `Manager` method.
+4. **Windows containers** - investigated and ruled out; see `hallucination`.
 
 ## Next action
 
-**Push the 8 unpushed commits to `origin/main` and read the first CI run.**
+**Watch the Windows CI run for `bf6c7b9` - it is the first build of
+`platform/win.rs`.**
 
-`origin/main` is at `9e47e41`; `HEAD` is `3dd940b`. Nothing has been pushed.
-Pushing requires the user's go-ahead - it has not been given, so the work stops
-exactly here.
+Everything ahead of it now passes, so this run reaches code that has never been
+compiled anywhere. Expect failures only in:
 
-The first run is expected to fail. Work the failures in this order, because they
-are ordered by likelihood and the earlier ones block the later ones:
+1. **`platform/win.rs` signatures** - whether `GetWindowRect` returns
+   `Result<()>` or `BOOL`, and whether `HWND == HWND::default()` is valid. Both
+   move between `windows` crate releases. Fix by reading the 0.61 docs for the
+   exact return types.
+2. **`tauri build` bundling** - WiX/NSIS toolchain download, and the release
+   profile (`lto`, `panic = "abort"`) compiling for the first time.
 
-1. **CI itself** - action versions and YAML; the workflow has never executed.
-2. **`platform/win.rs` signatures** - whether `GetWindowRect` returns
-   `Result<()>` or `BOOL`, and whether `HWND` compares against `HWND::default()`,
-   both move between `windows` crate releases. Local fixes.
-3. **`windows_mgr.rs` monitor APIs** - `cursor_position()` and
-   `monitor_from_point()` are used to put the overlay on the monitor holding the
-   cursor. If either is not on `WebviewWindow` in Tauri 2.11, fall back to
-   `primary_monitor()` alone and accept that multi-monitor users may get the
-   overlay on the wrong screen.
-4. **`cargo clippy -- -D warnings`** - never run; expect pedantic lints.
-5. **Capability minimality** - see `hallucination`, open question 1.
+Note the Linux container will *not* catch regressions in `platform/win.rs`. Treat
+any change to that file as CI-only verified.
 
 After green: download the NSIS artifact (per-user install, needs no admin) and run
-the manual checks in `useguide`.
+the manual checks in `useguide`, starting with escapability.

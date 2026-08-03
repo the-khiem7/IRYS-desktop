@@ -373,7 +373,26 @@ not compiling.
 
 ### How to verify without local admin
 
-**CI is the practical answer, and it is already wired up.**
+**Docker is the fast answer, and it is wired up.** Docker Desktop has a per-user
+install path that needs no admin, and a Linux toolchain runs the Rust gates in
+seconds:
+
+```bash
+docker compose -f docker/compose.yml run --rm -T verify
+```
+
+This currently passes `cargo fmt --check`, `cargo clippy -D warnings`, and all 43
+core tests. It cannot reach `platform/win.rs` (`#[cfg(windows)]`), the tray, the
+overlay, or the installers. Windows container mode would cover those but is not
+available here: it needs the privileged `com.docker.service` and the Containers
+Windows feature, both admin-gated.
+
+Note that `cargo fmt --all --check` also works outside Docker, since formatting
+parses but never links. Every other cargo command fails locally, with a misleading
+error - Rust picks up Git's POSIX `link` utility and reports `link: extra
+operand`, not "linker not found".
+
+**CI remains the Windows gate, and it is already wired up.**
 `.github/workflows/ci.yml` runs on GitHub's `windows-latest` runner, which ships
 MSVC and the Windows SDK preinstalled. Every push gets `cargo fmt --check`,
 `cargo clippy -D warnings`, `cargo test`, `vue-tsc --noEmit`, and a real

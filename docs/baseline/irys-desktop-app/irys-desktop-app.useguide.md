@@ -64,10 +64,51 @@ rejected.
 
 ## Procedures
 
-### Verify (CI is the build gate)
+### Verify locally in Docker (the fast loop - prefer this)
 
-Local admin is unavailable, so `.github/workflows/ci.yml` on `windows-latest` is
-where Rust is verified. Push, then read the run. Three jobs:
+```bash
+docker compose -f docker/compose.yml run --rm -T verify        # all Rust gates
+docker compose -f docker/compose.yml run --rm verify bash      # poke around
+```
+
+Runs `cargo fmt --check`, `cargo clippy -D warnings` and `cargo test` on a Linux
+toolchain, because the development machine has no MSVC linker and therefore cannot
+run *any* cargo command that links - not even `cargo check`, since `tauri-build`'s
+`build.rs` must be linked and executed first.
+
+`verify.sh` runs all three gates even when an earlier one fails. That is
+deliberate and the opposite of CI's fail-fast: a formatting failure used to hide
+the clippy error, which in turn hid whether the tests passed.
+
+Source is bind-mounted, so host edits need no image rebuild. `CARGO_TARGET_DIR`
+points at a named volume so Linux artefacts never collide with the host's
+Windows-MSVC `target/`.
+
+**What this cannot verify**, by construction: `platform/win.rs` is
+`#[cfg(windows)]` so a Linux compiler never parses it; likewise the tray, the
+transparent overlay, WebView2, and the MSI/NSIS bundles.
+
+Docker Desktop's **Windows container mode is not available here** - it needs the
+privileged `com.docker.service` and the Containers Windows feature, both
+admin-gated. The per-user Docker install that works without admin is exactly the
+one that cannot switch engines. Don't spend time retrying it.
+
+### Verify without Docker
+
+```bash
+npx vue-tsc --noEmit
+npx vite build
+cd src-tauri && cargo fmt --all --check   # works: fmt parses, never links
+```
+
+Any other cargo command fails locally. The error is misleading - Rust finds Git's
+POSIX `link` utility on `PATH` and reports `link: extra operand ...`, not
+"linker not found".
+
+### Verify on CI (the Windows gate)
+
+`.github/workflows/ci.yml` on `windows-latest` is the only place `platform/win.rs`
+and the installers get built. Three jobs:
 
 | Job | Runs |
 |---|---|
@@ -75,14 +116,14 @@ where Rust is verified. Push, then read the run. Three jobs:
 | `rust` | `cargo fmt --check`, `cargo clippy --all-targets -D warnings`, `cargo test --all-features` |
 | `bundle` | `tauri build` → MSI + NSIS uploaded as `irys-windows-installers` |
 
-### Verify locally (frontend only)
+Reading CI without a token: the public REST API exposes run and job metadata
+(`/actions/runs`, `/actions/runs/{id}/jobs`), which gives per-step pass/fail. Log
+downloads return **403** unauthenticated, so the container loop above is the way
+to see actual compiler output.
 
-```bash
-npx vue-tsc --noEmit
-npx vite build
-```
-
-Both currently pass. Anything touching `src-tauri/` cannot be checked here.
+Note `npm ci` requires `package-lock.json` to match `package.json` exactly. After
+changing dependencies, run `npm install` and commit the lockfile, or CI fails
+before it starts.
 
 ### Regenerate the icon
 

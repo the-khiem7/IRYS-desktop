@@ -9,21 +9,35 @@ code_ref: "3dd940b"
 
 # Open questions and closed decisions
 
-## Unverified claims - do not treat as fact
+## Now verified (was unverified)
 
-Everything Rust-side is written but never compiled. Specifically, these are
-*design intentions* with no execution behind them:
+A Docker Linux toolchain closed most of this gap. Confirmed by execution, not
+inspection:
 
-| Claim | Why it is unverified |
+| Claim | Evidence |
 |---|---|
-| The 43 core tests pass | `cargo test` has never run |
-| `platform/win.rs` compiles against `windows` 0.61 | Signatures for `GetWindowRect` / `HWND` comparison shift between releases |
-| `cursor_position()` and `monitor_from_point()` exist on `WebviewWindow` | Taken from Tauri 2 API memory, not checked against 2.11 |
-| Per-window capabilities are sufficient | See open question 1 |
-| The tray icon appears and its tooltip updates | Never run |
-| Idle and fullscreen detection actually suppress breaks | Logic is unit-tested in principle; the OS probes feeding it are not |
+| The 43 core tests pass | `cargo test`: **43 passed, 0 failed**, 0.01 s |
+| The crate compiles (everything not `#[cfg(windows)]`) | `cargo clippy` clean |
+| Zero clippy warnings under `-D warnings` | one unused import found and fixed |
+| `cursor_position()` / `monitor_from_point()` exist on `WebviewWindow` | type-checks against Tauri 2.11 |
+| `StoreExt`, `autolaunch()`, `TrayIconBuilder`, `MenuItem::set_text` all exist as used | type-check |
+| Formatting is rustfmt-clean | `cargo fmt --all --check` passes |
+| The schedule logic is correct, not merely plausible | both suppression rules, sleep/wake, pause/resume and clamping all asserted |
+
+## Still unverified - do not treat as fact
+
+Small and well-bounded now: roughly 40 lines of Win32 FFI, plus anything needing a
+real desktop.
+
+| Claim | Why it is still unverified |
+|---|---|
+| `platform/win.rs` compiles against `windows` 0.61 | `#[cfg(windows)]`, so a Linux compiler never parses it. `GetWindowRect` returning `Result<()>` vs `BOOL`, and `HWND == HWND::default()`, both shift between crate releases |
+| Idle and fullscreen detection actually suppress breaks | The *logic* consuming them is now tested; the Win32 probes feeding it are not |
+| Per-window capabilities are sufficient | Runtime concern; see open question 1 |
+| The tray icon appears and its tooltip updates | Needs a desktop session |
 | Either window looks as intended | Never rendered; no screenshot exists |
-| `codegen-units=1` + `lto` + `panic=abort` release profile builds | Never built |
+| `codegen-units=1` + `lto` + `panic=abort` release profile builds | Only `tauri build` on Windows exercises it |
+| The MSI and NSIS installers produce a working install | Never built |
 
 ## Open questions
 
@@ -70,6 +84,9 @@ Everything Rust-side is written but never compiled. Specifically, these are
 | TypeScript version | **Pinned `~5.9`, not latest `7.x`** | 7.x is the native rewrite; `vue-tsc` 3.x is validated against the TS 5 compiler API. |
 | Vite minifier | **`minify: true`, not `'esbuild'`** | Verified failure: Vite 8 builds on rolldown and does not ship esbuild, so naming it fails to resolve. |
 | `windows` crate version | **Pinned `0.61`** | Matches Tauri's own dependency so cargo shares one compiled copy. |
-| Local MSVC install | **Abandoned** | Policy block, not a fixable error. Verification moved to CI. |
+| Local MSVC install | **Abandoned** | Policy block, not a fixable error. |
+| Local Rust verification | **Docker, Linux containers** | Docker Desktop has a per-user install path needing no admin. A Linux toolchain runs fmt, clippy and all 43 tests in seconds, replacing a five-minute CI round-trip whose logs were unreadable without a token. |
+| Windows containers for `platform/win.rs` | **Not possible here** | Verified: needs the privileged `com.docker.service` plus the Containers Windows feature, both admin-gated. The per-user install that works without admin is precisely the one that cannot switch engines. `-SwitchDaemon` fails with `context deadline exceeded`. Don't retry. |
+| Where `platform/win.rs` gets verified | **Windows CI only** | No local option exists. It is ~40 lines of FFI, so the exposure is bounded. |
 | Corporate identifiers in docs | **Scrubbed and prohibited** | A hostname and account names had been written into `PLAN.md`. Never pushed; removed by amend + `reflog expire` + `gc --prune=now`, verified absent from the whole object store. |
 | Diagram format in `PLAN.md` | **Mermaid for the architecture graph, ASCII for the file tree** | User's correction - a file tree reads better as ASCII. |
