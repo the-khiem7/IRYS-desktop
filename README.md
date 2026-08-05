@@ -8,7 +8,7 @@
 
 Irys keeps that habit for you, so you can forget about it and stay in flow.
 
-[**Download for Windows**](https://github.com/the-khiem7/IRYS-desktop/releases/latest) · Free · No account · No admin rights needed
+[**Download for Windows or Linux**](https://github.com/the-khiem7/IRYS-desktop/releases/latest) · Free · No account
 
 ![The Irys break reminder - a glowing countdown ring around an animated eye, with the prompt "Look into the distance"](docs/img/break-overlay.png)
 
@@ -114,6 +114,8 @@ Manager lists separately.)*
 
 **[Download the latest release](https://github.com/the-khiem7/IRYS-desktop/releases/latest)** and pick one:
 
+### Windows
+
 | File | Installs | Admin rights |
 |---|---|---|
 | `Irys_x.y.z_x64-setup.exe` | Just for you | **Not needed** - recommended |
@@ -124,13 +126,25 @@ work laptop where you cannot install software normally.
 
 **Windows will warn you once.** Irys is not code-signed yet - a certificate costs
 real money and this is a free app - so SmartScreen shows *"Windows protected your
-PC"* the first time. Choose **More info -> Run anyway**. If you would rather not
-take my word for it, the entire app is in this repository and every release is
-built by GitHub Actions from a tagged commit, in public, where you can read the
-log.
+PC"* the first time. Choose **More info -> Run anyway**.
 
-Requirements: **Windows 10 or 11**. Nothing else - the Edge WebView2 runtime Irys
-uses for its UI already ships with Windows.
+Requirements: **Windows 10 or 11**. The Edge WebView2 runtime already ships with
+Windows.
+
+### Linux
+
+| File | How to use |
+|---|---|
+| `Irys_x.y.z_amd64.AppImage` | `chmod +x` then run - works on most distros, including Arch / Hyprland |
+| `Irys_x.y.z_amd64.deb` | Debian / Ubuntu: `sudo apt install ./Irys_*.deb` |
+
+System libraries needed at runtime: WebKitGTK 4.1 and a StatusNotifier/AppIndicator
+tray host (Waybar, KDE, etc.). On Arch: `webkit2gtk-4.1` and
+`libayatana-appindicator`.
+
+If you would rather not take my word for a binary, the entire app is in this
+repository and every release is built by GitHub Actions from a tagged commit, in
+public, where you can read the log.
 
 ## Privacy
 
@@ -155,12 +169,15 @@ If a reminder ever refuses to go away, that is a bug - please report it.
 ## Status
 
 **v0.1.0 - the first public release.** The scheduling core is covered by 43
-automated tests, and every release is compiled and gated on a clean Windows
-runner before it is published. That said, this is a first release of a young app:
-if something misbehaves, [open an issue](https://github.com/the-khiem7/IRYS-desktop/issues) and include what you were doing.
+automated tests, and every release is compiled and gated on clean CI runners
+(Windows + Linux) before it is published. That said, this is a first release of
+a young app: if something misbehaves,
+[open an issue](https://github.com/the-khiem7/IRYS-desktop/issues) and include
+what you were doing.
 
-Windows is the supported platform today. macOS and Linux compile, but the
-away-detection and full-screen-detection features are Windows-only so far.
+**Windows and Linux** are supported. Away-detection and full-screen-detection are
+still Windows-only; on Linux those two toggles are safe no-ops. macOS is not
+shipped yet.
 
 ## For developers
 
@@ -174,7 +191,9 @@ tested exhaustively in milliseconds.
 
 ```bash
 npm install
+npm run app             # native Tauri dev (Linux or Windows host)
 npm run verify          # types, format, lint, and all 43 tests, in Docker
+npm run build:linux     # deb + AppImage (run on a Linux host)
 npm run build:windows   # cross-compile a Windows installer into ./out
 ```
 
