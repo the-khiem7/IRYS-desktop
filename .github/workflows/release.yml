@@ -4,14 +4,9 @@ name: Release
 #
 #   git tag v0.1.0 && git push origin v0.1.0
 #
-# Day-to-day verification and installer builds happen locally in Docker
-# (`npm run verify`, `npm run build:windows`), so this workflow exists for the
-# two things a Linux container structurally cannot do:
-#
-#   - compile src-tauri/src/platform/win.rs, which is #[cfg(windows)]
-#   - build the MSI, which needs WiX and is Windows-only
-#
-# ci.yml still runs on every push; this only fires on a version tag.
+# Builds Windows installers (needs MSVC / WiX) and Linux packages (deb +
+# AppImage) in parallel, then publishes every artifact onto the same GitHub
+# Release. ci.yml still runs on every push; this only fires on a version tag.
 
 on:
   push:
@@ -29,8 +24,8 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  release:
-    name: Build and publish Windows installers
+  verify:
+    name: Verify tag and Rust gates
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v5
@@ -40,19 +35,17 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24
-          cache: npm
 
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
 
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri
 
-      - run: npm ci
-
-      # Re-run the gates before publishing. The local Docker loop cannot reach
-      # platform/win.rs, so this is the first Windows compile of any given tag
-      # and must not be skipped just because it passed locally.
+      # Re-run the gates before publishing. platform/win.rs only compiles on
+      # Windows, so this must not be skipped just because Linux passed locally.
       - name: Verify before publishing
         working-directory: src-tauri
         run: |
@@ -79,8 +72,30 @@ jobs:
             exit 1
           fi
 
+  build-windows:
+    name: Build Windows installers
+    runs-on: windows-latest
+    needs: verify
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - run: npm ci
+
       - name: Build installers
-        run: npx tauri build
+        run: npx tauri build --bundles msi,nsis
 
       - uses: actions/upload-artifact@v4
         with:
@@ -89,6 +104,65 @@ jobs:
             src-tauri/target/release/bundle/msi/*.msi
             src-tauri/target/release/bundle/nsis/*.exe
           if-no-files-found: error
+
+  build-linux:
+    name: Build Linux packages
+    runs-on: ubuntu-22.04
+    needs: verify
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            xdg-utils \
+            file
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - run: npm ci
+
+      - name: Build packages
+        run: npx tauri build --bundles deb,appimage
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: irys-linux-packages
+          path: |
+            src-tauri/target/release/bundle/deb/*.deb
+            src-tauri/target/release/bundle/appimage/*.AppImage
+          if-no-files-found: error
+
+  publish:
+    name: Publish GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build-windows, build-linux]
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: irys-windows-installers
+          path: dist/windows
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: irys-linux-packages
+          path: dist/linux
 
       - name: Publish release
         uses: softprops/action-gh-release@v2
@@ -100,16 +174,27 @@ jobs:
           draft: false
           generate_release_notes: true
           files: |
-            src-tauri/target/release/bundle/msi/*.msi
-            src-tauri/target/release/bundle/nsis/*.exe
+            dist/windows/**/*.msi
+            dist/windows/**/*.exe
+            dist/linux/**/*.deb
+            dist/linux/**/*.AppImage
           body: |
             Irys keeps the 30-30-30 rule for you: every 30 minutes, look about
             30 feet (10 m) away for 30 seconds.
 
             **Which file to download**
 
+            Windows:
             - `*-setup.exe` (NSIS) - installs for the current user, no admin needed
             - `*.msi` - installs for all users, requires admin
 
-            Both are **unsigned**, so SmartScreen will warn on first run:
-            More info -> Run anyway.
+            Linux:
+            - `*.AppImage` - run directly (chmod +x, then execute)
+            - `*.deb` - Debian / Ubuntu (`sudo apt install ./Irys_*.deb`)
+
+            Windows builds are **unsigned**, so SmartScreen will warn on first
+            run: More info -> Run anyway.
+
+            On Linux, idle-skip and fullscreen-defer still use safe stubs (they
+            never suppress). Everything else works natively, including on
+            Wayland / Hyprland.

@@ -16,6 +16,7 @@
     "verify": "docker compose -f docker/compose.yml run --rm -T verify",
     "build:windows": "docker compose -f docker/compose.yml run --rm -T build-windows",
     "build:windows:release": "docker compose -f docker/compose.yml run --rm -T build-windows-release",
+    "build:linux": "tauri build --bundles deb,appimage",
     "shell": "docker compose -f docker/compose.yml run --rm shell",
     "icon": "node scripts/make-icon.mjs && tauri icon icon-source.png"
   },
