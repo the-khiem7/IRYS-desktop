@@ -92,7 +92,7 @@ jobs:
       - name: Build installers
         run: npx tauri build --bundles msi,nsis
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: irys-windows-installers
           path: |
@@ -134,7 +134,7 @@ jobs:
       - name: Build packages
         run: npx tauri build --bundles deb,appimage
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: irys-linux-packages
           path: |
