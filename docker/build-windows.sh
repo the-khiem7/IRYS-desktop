@@ -26,7 +26,7 @@ if [ "$mode" = "debug" ]; then
   # diagnostics become visible, which is what you want on a first run.
   profile_args=(--debug)
   bundle_dir="${target_dir}/debug/bundle/nsis"
-  printf '\033[1;36m==> building DEBUG (fast; bigger binary, console visible)\033[0m\n'
+  printf '\033[1;36m==> building DEBUG (fast; bigger binary, GUI subsystem)\033[0m\n'
 elif [ "$mode" = "release" ]; then
   profile_args=()
   bundle_dir="${target_dir}/release/bundle/nsis"

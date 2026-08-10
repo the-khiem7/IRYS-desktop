@@ -554,7 +554,7 @@ fn tray_label_reflects_the_phase() {
     m.break_now();
     assert!(m.tray_label().contains("distance"));
     m.pause();
-    assert_eq!(m.tray_label(), "Irys - paused");
+    assert_eq!(m.tray_label(), "IRYS - paused");
 }
 
 #[test]

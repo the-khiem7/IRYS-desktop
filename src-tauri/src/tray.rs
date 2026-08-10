@@ -20,7 +20,7 @@ pub fn build(app: &AppHandle) -> tauri::Result<()> {
     let break_now = MenuItem::with_id(app, "break_now", "Take a break now", true, None::<&str>)?;
     let toggle = MenuItem::with_id(app, "toggle", "Pause", true, None::<&str>)?;
     let settings = MenuItem::with_id(app, "settings", "Settings…", true, None::<&str>)?;
-    let quit = MenuItem::with_id(app, "quit", "Quit Irys", true, None::<&str>)?;
+    let quit = MenuItem::with_id(app, "quit", "Quit IRYS", true, None::<&str>)?;
     let sep_a = PredefinedMenuItem::separator(app)?;
     let sep_b = PredefinedMenuItem::separator(app)?;
 
@@ -30,7 +30,7 @@ pub fn build(app: &AppHandle) -> tauri::Result<()> {
     )?;
 
     let mut builder = TrayIconBuilder::with_id(TRAY_ID)
-        .tooltip("Irys")
+        .tooltip("IRYS")
         .menu(&menu)
         .show_menu_on_left_click(false)
         .on_menu_event(on_menu_event)

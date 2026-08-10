@@ -149,10 +149,10 @@ background-matched lid would not.
 
 ### UI direction for the next frontend pass
 
-The current frontend is deliberately not yet redesigned. When it is, use the
-review prototypes in `docs/brief/irys-winui3-settings.html` and
-`docs/brief/irys-winui3-break.html` as the visual brief, not as copy-paste
-production code. The governing rules are:
+Phase 15 ports the review direction into `src-vue`. The prototypes in
+`docs/brief/irys-winui3-settings.html` and
+`docs/brief/irys-winui3-break.html` remain visual references, not runtime
+assets. The governing rules are:
 
 - Use **IRYS** as the product display name everywhere a user sees the brand.
   Internal identifiers (`irys://tick`, Cargo/package identifiers, and app ID)
@@ -173,6 +173,8 @@ production code. The governing rules are:
   and Snooze.
 - Preserve system-theme/reduced-motion behaviour and the existing strict CSP;
   do not add remote fonts, icon CDNs, or a UI framework merely to imitate WinUI.
+- Keep Settings appearance local to the WebView; it is not a Rust `Settings`
+  field and must not expand the scheduler/IPC contract.
 
 ## Build and verification topology
 

@@ -88,13 +88,14 @@ confirmation, led by escapability and then background accuracy - a break firing
 on time with every window minimised, which is the entire reason the clock lives
 in Rust.
 
-The next UI implementation must make the app feel native to its Windows-first
-audience: **IRYS** is the user-facing product spelling. Settings use the WinUI
-3 / Windows 11 Fluent direction with user-selectable light/dark appearance;
-the full-screen break is intentionally dark-only to avoid a bright flash at
-night. The approved review-only prototypes are
+Phase 15 implements the Windows-first visual direction: **IRYS** is the
+user-facing product spelling. Settings use WinUI 3 / Windows 11 Fluent with a
+user-selectable local light/dark appearance; the full-screen break is
+intentionally dark-only to avoid a bright flash at night. The review prototypes
+remain the visual reference at
 `docs/brief/irys-winui3-settings.html` and
-`docs/brief/irys-winui3-break.html`; they are not wired into the app yet.
+`docs/brief/irys-winui3-break.html`; they are now ported into `src-vue` and
+await Windows desktop verification.
 
 ## Constraints
 
@@ -106,7 +107,9 @@ night. The approved review-only prototypes are
    Rust is installed (user profile, not on `PATH`) and is not the problem.
    This is a policy block, not a misconfiguration - do not retry the install or
    attempt elevation, and never request admin credentials.
-2. **Docker is the development loop; CI is release automation.** A per-user Docker
+2. **Docker is the development loop; CI is release automation.** The owner has
+   explicitly prohibited host Rust toolchains and host Cargo commands: every
+   Rust format, lint, test and build operation runs in Docker. A per-user Docker
    Desktop install needs no admin, and a Linux toolchain runs every gate in
    seconds plus cross-compiles a real Windows installer via `cargo-xwin`. CI
    covers only what a Linux container structurally cannot: `platform/win.rs`,

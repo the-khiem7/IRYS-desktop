@@ -137,17 +137,17 @@ privileged `com.docker.service` and the Containers Windows feature, both
 admin-gated. The per-user Docker install that works without admin is exactly the
 one that cannot switch engines. Don't spend time retrying it.
 
-### Verify without Docker
+### Host-only frontend checks (never Cargo)
 
 ```bash
 npx vue-tsc --noEmit
 npx vite build
-cd src-tauri && cargo fmt --all --check   # works: fmt parses, never links
 ```
 
-Any other cargo command fails locally. The error is misleading - Rust finds Git's
-POSIX `link` utility on `PATH` and reports `link: extra operand ...`, not
-"linker not found".
+Do not run `cargo`, `rustup`, or any Rust build tooling on the host. This is an
+explicit containment rule: all Rust format, lint, test, metadata and bundle
+operations run through `npm run verify`, `npm run build:windows*`, or `npm run
+shell`, which use the Docker toolchain and keep Rust caches out of the machine.
 
 ### Verify on CI (the platform gates)
 
@@ -199,10 +199,10 @@ mobile icon sets that should be deleted - this is a desktop app.
 #    and the irys entry in src-tauri/Cargo.lock
 # 2. Verify, then commit
 npm run verify
-# 3. Tag with all three semver parts - `v0.1`, would fail against `0.1.0`
-git tag -a v0.1.0 -m "..."
+# 3. Tag with all three semver parts - `v0.1`, would fail against `0.1.1`
+git tag -a v0.1.1 -m "..."
 git push origin main
-git push origin v0.1.0
+git push origin v0.1.1
 ```
 
 `release.yml` then re-runs `fmt`, `clippy` and the tests **on Windows** before
@@ -262,6 +262,7 @@ Set the work interval to 1 minute first, and have `Ctrl+Shift+Esc` ready.
   dark-only and reuses the complete animated SVG eye (blink, distant gaze and
   pupil dilation) to avoid a nighttime flash. Use
   `docs/brief/irys-winui3-settings.html` and
-  `docs/brief/irys-winui3-break.html` for review intent; they are standalone
-  prototypes, not runtime assets. Keep implementation local, CSP-compatible,
+  `docs/brief/irys-winui3-break.html` for review intent; Phase 15 ports that
+  intent into `src-vue` without importing the HTML as a runtime asset. Keep
+  implementation local, CSP-compatible,
   keyboard-accessible, and respectful of reduced motion.

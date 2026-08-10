@@ -34,7 +34,7 @@ run on Windows; hands-on verification remains, led by escapability.
 | 12 | Release automation | **complete** | `507ccc8`, `519c761` | `release.yml` fired on `v0.1.0` and succeeded end to end: all gates on Windows, tag matched `tauri.conf.json`, both installers published non-draft. NSIS 1.31 MB, MSI 1.88 MB. |
 | 13 | Manual runtime verification | **substantially verified** | - | User confirmed Skip/Snooze dismiss the overlay, minimized/background timing continues, Corner reminder displays, autostart works, and settings persist across restart. Idle/fullscreen suppression and sleep/wake remain unverified. |
 | 14 | Linux packages in CI/release | **implemented, unverified** | `2f91859` | `ci.yml` adds `bundle-linux` on `ubuntu-22.04`; `release.yml` adds `build-linux` and uploads `.deb` + AppImage assets. No run/release artifact was inspected here. |
-| 15 | WinUI 3 desktop UI refresh | **approved for implementation; prototype only** | - | Settings prototype is WinUI/Fluent with user-selectable light/dark appearance. Break prototype is dark-only, uses the complete animated eye behaviour, and avoids nighttime flash. User-facing branding is `IRYS`; `src-vue` remains unchanged. |
+| 15 | WinUI 3 desktop UI refresh | **implemented; verification pending** | - | `src-vue` now has a desktop-shaped Fluent settings window with local light/dark appearance, a dark-only wide break overlay with the complete animated eye, and `IRYS` display branding across the user-facing app surfaces. Rust scheduling and IPC remain unchanged. |
 
 ## Dependencies
 
@@ -78,8 +78,10 @@ Recorded so they are not rediscovered:
 All of it needs a desktop; none can be automated. The existing Windows manual
 evidence does not establish equivalent Linux runtime behaviour.
 
-1. **Escape key.** Skip and Snooze have been user-confirmed to dismiss/complete
-   the overlay. Confirm Escape too, after the Phase 15 break UI lands.
+1. **Phase 15 desktop runtime check.** Confirm the implemented Settings navigation,
+   stored light/dark appearance, full-screen break, Corner reminder and Escape
+   handling on a Windows desktop. Skip and Snooze were confirmed before this UI
+   refresh and need a regression check.
 2. **Suppression at runtime** - idle-skip and fullscreen-defer. The logic is
    unit-tested and the probes compile, but they have never run against a live
    desktop.

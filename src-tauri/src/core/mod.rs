@@ -425,12 +425,12 @@ impl Machine {
     fn tray_label(&self) -> String {
         match &self.phase {
             Phase::Work { remaining } => {
-                format!("Irys - next break in {}", fmt_mmss(*remaining))
+                format!("IRYS - next break in {}", fmt_mmss(*remaining))
             }
             Phase::Break { remaining } => {
-                format!("Irys - look into the distance · {remaining}s")
+                format!("IRYS - look into the distance · {remaining}s")
             }
-            Phase::Paused { .. } => "Irys - paused".to_owned(),
+            Phase::Paused { .. } => "IRYS - paused".to_owned(),
         }
     }
 }
