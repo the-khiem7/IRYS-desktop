@@ -84,6 +84,12 @@ confirmation, led by escapability and then background accuracy - a break firing
 on time with every window minimised, which is the entire reason the clock lives
 in Rust.
 
+The next UI implementation must make the app feel native to its Windows-first
+audience: **WinUI 3 / Windows 11 Fluent light** is the governing visual
+direction. The approved review-only prototypes are
+`docs/brief/irys-winui3-settings.html` and
+`docs/brief/irys-winui3-break.html`; they are not wired into the app yet.
+
 ## Constraints
 
 1. **No administrator rights on the development machine** - withheld by policy on

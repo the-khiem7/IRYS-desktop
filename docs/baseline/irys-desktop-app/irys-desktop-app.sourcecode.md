@@ -147,6 +147,27 @@ the CSP. The blink is a `scaleY` squash rather than a moving lid shape,
 specifically so it works on the translucent overlay veil where a
 background-matched lid would not.
 
+### UI direction for the next frontend pass
+
+The current frontend is deliberately not yet redesigned. When it is, use the
+review prototypes in `docs/brief/irys-winui3-settings.html` and
+`docs/brief/irys-winui3-break.html` as the visual brief, not as copy-paste
+production code. The governing rules are:
+
+- **WinUI 3 / Windows 11 Fluent light**, with a light Mica-like backdrop,
+  restrained elevation, Segoe UI Variable/Text, and Windows blue (`#0067c0`) as
+  the primary accent - not a generic dark-dashboard aesthetic.
+- Make the settings window desktop-shaped: a title bar plus NavigationView-like
+  sidebar, a wide status/dashboard region, and related settings in side-by-side
+  cards where the window width permits. Avoid rebuilding the current long,
+  single vertical stack.
+- Make the break overlay a spacious two-column composition on wide displays:
+  countdown as the focal point, guidance and actions beside it. It must remain
+  readable, non-alarming, focusable, and always dismissible with Escape, Skip,
+  and Snooze.
+- Preserve system-theme/reduced-motion behaviour and the existing strict CSP;
+  do not add remote fonts, icon CDNs, or a UI framework merely to imitate WinUI.
+
 ## Build and verification topology
 
 Not incidental scaffolding: the development machine cannot install MSVC, so how

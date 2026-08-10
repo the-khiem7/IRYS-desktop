@@ -34,6 +34,7 @@ run on Windows; hands-on verification remains, led by escapability.
 | 12 | Release automation | **complete** | `507ccc8`, `519c761` | `release.yml` fired on `v0.1.0` and succeeded end to end: all gates on Windows, tag matched `tauri.conf.json`, both installers published non-draft. NSIS 1.31 MB, MSI 1.88 MB. |
 | 13 | Manual runtime verification | **partly done** | - | First install confirmed working; see *Remaining work*. |
 | 14 | Linux packages in CI/release | **implemented, unverified** | `2f91859` | `ci.yml` adds `bundle-linux` on `ubuntu-22.04`; `release.yml` adds `build-linux` and uploads `.deb` + AppImage assets. No run/release artifact was inspected here. |
+| 15 | WinUI 3 desktop UI refresh | **approved for implementation; prototype only** | - | `docs/brief/irys-winui3-settings.html` and `irys-winui3-break.html` establish the Windows 11 Fluent light direction. `src-vue` remains unchanged. |
 
 ## Dependencies
 
@@ -97,3 +98,8 @@ evidence does not establish equivalent Linux runtime behaviour.
 
 Regression note: the Linux container does **not** compile `platform/win.rs`.
 Treat any change to that file as CI-verified only.
+
+UI implementation note: phase 15 is a visual/layout change, not permission or
+scheduler work. Preserve the existing Rust-owned state, IPC contract, two-window
+model, accessibility, reduced-motion support, and escapability while replacing
+the presentation.
