@@ -102,11 +102,10 @@ disables parallel codegen and adds a largely single-threaded whole-program pass.
 The dev build is 3.1 MB against 1.4 MB and slower at runtime, neither of which
 matters when the question is whether Escape dismisses the overlay.
 
-A dev build also **keeps its console window**, because `main.rs` only sets
-`windows_subsystem = "windows"` under `not(debug_assertions)`. That makes
-`eprintln!` diagnostics visible, so prefer it for a first run: if the tray icon
-never appears or `invoke` is rejected by the capability config, the console says
-why instead of failing silently.
+A Windows dev build also has **no console window**: `main.rs` selects
+`windows_subsystem = "windows"` for every Windows build, so closing a terminal
+panel cannot terminate IRYS. Use the debugger or captured application logs for
+`eprintln!` diagnostics instead of relying on a visible console.
 
 The development machine has no MSVC linker, so it cannot run *any* cargo command
 that links - not even `cargo check`, since `tauri-build`'s `build.rs` must be
@@ -241,22 +240,16 @@ Set the work interval to 1 minute first, and have `Ctrl+Shift+Esc` ready.
 
 **Still to do, in priority order:**
 
-1. **Always escapable** - Escape, Skip and Snooze each dismiss the overlay.
-   *Non-negotiable; verify on every change to the break window.* The buttons
-   render but a press has not been observed.
-2. **Background accuracy** - minimise everything, work elsewhere for a full
-   interval, confirm the break still fires on time. This is the whole point, and
-   the thing a JS timer would fail.
-3. **Toast style** - switch to Corner and trigger a break; never displayed yet.
-4. **Idle skip** - leave input alone past the threshold; no break, interval resets.
-5. **Fullscreen defer** - F11 a video across the break moment; the overlay is
+1. **Escape** - Skip and Snooze are user-confirmed. Observe Escape after every
+   break-window change; it is non-negotiable for an always-on-top overlay.
+2. **Idle skip** - leave input alone past the threshold; no break, interval resets.
+3. **Fullscreen defer** - F11 a video across the break moment; the overlay is
    postponed, then fires after exiting.
-6. **Tray lifecycle** - close settings; breaks keep firing. Quit actually exits.
-7. **Autostart** - toggle on, confirm the `HKCU\...\Run` entry, re-login, confirm
-   running; toggle off, confirm the entry is gone.
-8. **Persistence** - change a setting, restart, confirm it survived.
-9. **Sleep/wake** - suspend across a break boundary; no stale break on resume.
-10. **Footprint** - idle CPU near zero.
+4. **Tray lifecycle** - close settings; breaks keep firing. Quit actually exits.
+5. **Autostart cleanup** - user-confirmed as working; separately inspect the
+   `HKCU\...\Run` add/remove and re-login lifecycle when practical.
+6. **Sleep/wake** - suspend across a break boundary; no stale break on resume.
+7. **Footprint** - idle CPU near zero.
 
 ## Conventions to keep
 

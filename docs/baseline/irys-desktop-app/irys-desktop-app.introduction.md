@@ -64,15 +64,19 @@ directly:
 - **The overlay renders correctly** - a transparent, frameless, always-on-top
   window did *not* come out as a black rectangle on Windows 11. The countdown
   ring sweeps, the eye animates, and Skip and Snooze are both visible
-- **Console window present** in the dev-profile build, as intended
+- **Skip and Snooze dismiss the overlay**; background/minimized timing,
+  Corner reminder, autostart and persisted settings were subsequently confirmed
+  by the user after sustained use
 
 ### Still to check by hand
 
-- **Escapability** - Escape, Skip and Snooze actually dismissing. The buttons
-  render, but pressing them is unconfirmed. This is the highest-priority check
-- **Background accuracy** - a break firing on time with every window minimised,
-  which is the entire reason the timer lives in Rust
-- Toast style, idle-skip, fullscreen-defer, autostart, sleep/wake
+- **Escape** - Skip and Snooze are user-confirmed; Escape remains to be observed
+  after the upcoming break UI refresh
+- **Runtime suppression** - idle/fullscreen behaviour needs a live desktop test
+- **Sleep/wake** - suspend across a break boundary; no stale break should fire
+  on resume
+- **Windows GUI startup** - rebuild after the `windows_subsystem` change and
+  confirm the app opens without a terminal panel
 
 ## Target
 

@@ -23,8 +23,8 @@ run on Windows; hands-on verification remains, led by escapability.
 | 1 | Scaffold (Vite 2-entry, `src-vue/`, Cargo, tsconfig) | complete | `dbc5c1b` | `vite build` emits `index.html` + `break.html` as separate bundles. |
 | 2 | Pure scheduling core + tests | **verified** | `32f3faa` | `cargo test`: **43 passed, 0 failed** in 0.01 s, on both Linux and windows-msvc. Covers both suppression rules, sleep/wake, pause/resume, clamping. |
 | 3 | Scheduler, tray, window manager, IPC, capabilities | **verified at runtime** | `2693aeb` | Clippy clean, and the first run confirmed the tray icon appears with a live-updating tooltip, and that `invoke` works under minimal capabilities. |
-| 4 | Break UI - AnimatedEye, CountdownRing, RuleGuide, Overlay + Toast | **overlay verified, toast not** | `9f74517` | Overlay renders correctly: dark veil, sweeping ring, animated eye, Skip and Snooze visible. Transparent always-on-top did not come out black on Windows 11. Toast style never displayed. |
-| 5 | Settings window + persistence + autostart | **renders and is live** | `9f74517` | Settings window renders and shows a live countdown, so IPC and event delivery both work. Persistence round-trip and autostart still unexercised. |
+| 4 | Break UI - AnimatedEye, CountdownRing, RuleGuide, Overlay + Toast | **runtime verified** | `9f74517` | Overlay renders correctly; user later confirmed Skip/Snooze dismissal and the Corner reminder. Escape remains unobserved. |
+| 5 | Settings window + persistence + autostart | **runtime verified** | `9f74517` | Settings live countdown, persisted settings and autostart were confirmed by the user. Registry add/remove and re-login were not separately inspected. |
 | 6 | Windows idle + fullscreen probes | **compiles, runtime unverified** | `2c6d604` | Built on windows-msvc. The hand-written Win32 FFI was right first time: `GetWindowRect` returns `Result<()>`, `HWND == HWND::default()` is valid, `GetMonitorInfoW` returns `BOOL`. Whether they actually suppress a break is untested. |
 | 7 | Icon generation | **complete** | `7c08bab` | `npm run icon` produced the desktop set; the eye reads correctly at 128px and in the tray. |
 | 8 | Frontend verification | **complete** | - | `vue-tsc --noEmit` and `vite build` clean (break bundle 3.08 kB, carries no settings code). |
@@ -32,7 +32,7 @@ run on Windows; hands-on verification remains, led by escapability.
 | 10 | Docker verification path | **complete** | `2a77781` | `npm run verify`: frontend gates, fmt, clippy and 43 tests on a Linux toolchain, in seconds. Removed the dependency on CI logs that return 403 without a token. |
 | 11 | Local Windows builds via cargo-xwin | **complete** | `86447a8` | `npm run build:windows` produces a real PE32 NSIS installer from Linux. 386 s cold release, 249 s cold dev, **35 s incremental**. |
 | 12 | Release automation | **complete** | `507ccc8`, `519c761` | `release.yml` fired on `v0.1.0` and succeeded end to end: all gates on Windows, tag matched `tauri.conf.json`, both installers published non-draft. NSIS 1.31 MB, MSI 1.88 MB. |
-| 13 | Manual runtime verification | **partly done** | - | First install confirmed working; see *Remaining work*. |
+| 13 | Manual runtime verification | **substantially verified** | - | User confirmed Skip/Snooze dismiss the overlay, minimized/background timing continues, Corner reminder displays, autostart works, and settings persist across restart. Idle/fullscreen suppression and sleep/wake remain unverified. |
 | 14 | Linux packages in CI/release | **implemented, unverified** | `2f91859` | `ci.yml` adds `bundle-linux` on `ubuntu-22.04`; `release.yml` adds `build-linux` and uploads `.deb` + AppImage assets. No run/release artifact was inspected here. |
 | 15 | WinUI 3 desktop UI refresh | **approved for implementation; prototype only** | - | Settings prototype is WinUI/Fluent with user-selectable light/dark appearance. Break prototype is dark-only, uses the complete animated eye behaviour, and avoids nighttime flash. User-facing branding is `IRYS`; `src-vue` remains unchanged. |
 
@@ -78,23 +78,16 @@ Recorded so they are not rediscovered:
 All of it needs a desktop; none can be automated. The existing Windows manual
 evidence does not establish equivalent Linux runtime behaviour.
 
-1. **Escapability.** Do Escape, Skip and Snooze actually dismiss the overlay? The
-   buttons render, but a press has never been observed. **Highest priority**: a
-   frameless, transparent, always-on-top window that cannot be dismissed is the
-   one failure that would make Irys feel like malware rather than a health app.
-   Thirty seconds with *Break now* and the Escape key settles it.
-2. **Background accuracy.** Set the interval to 1 minute, minimise every window,
-   work elsewhere, confirm the break still fires on time. This is the entire
-   justification for putting the clock in Rust rather than JavaScript.
-3. **Toast style** - never displayed. Switch to Corner and trigger a break.
-4. **Suppression at runtime** - idle-skip and fullscreen-defer. The logic is
+1. **Escape key.** Skip and Snooze have been user-confirmed to dismiss/complete
+   the overlay. Confirm Escape too, after the Phase 15 break UI lands.
+2. **Suppression at runtime** - idle-skip and fullscreen-defer. The logic is
    unit-tested and the probes compile, but they have never run against a live
    desktop.
-5. **Autostart** - toggle on, confirm the `HKCU\...\Run` entry, re-login, confirm
-   Irys is running, toggle off, confirm the entry is gone.
-6. **Sleep/wake** - suspend across a break boundary; confirm no stale break fires
+3. **Sleep/wake** - suspend across a break boundary; confirm no stale break fires
    on resume, which is what `SLEEP_GAP_SECS = 90` exists to prevent.
-7. **Persistence** - change a setting, restart, confirm it survived.
+4. **Windows GUI startup.** Rebuild and start the changed app from its normal
+   shortcut/command; confirm no terminal panel appears and closing a former
+   terminal process can no longer end IRYS.
 
 Regression note: the Linux container does **not** compile `platform/win.rs`.
 Treat any change to that file as CI-verified only.

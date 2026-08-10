@@ -29,7 +29,8 @@ install covered runtime.
 | **The tray icon appears** | eye icon visible, tooltip counts down live (`next break in 29:54`) |
 | **`invoke` and events work under minimal capabilities** | settings window shows a live countdown - resolves open question 1 |
 | **The overlay renders** | transparent frameless always-on-top did **not** come out black on Windows 11; ring sweeps, eye animates, Skip and Snooze visible |
-| A dev-profile build keeps its console | `windows_subsystem` is only set under `not(debug_assertions)` |
+| Windows GUI startup has no terminal panel | `main.rs` selects the Windows subsystem for every Windows build. This code change still needs a rebuilt-app user check. |
+| Skip, Snooze, background timing, Corner, autostart and persistence work | User-reported sustained Windows use; Escape, idle/fullscreen suppression and sleep/wake remain unverified. |
 | **The release pipeline works end to end** | `v0.1.0` published non-draft with both installers. The tag check accepted `v0.1.0` against `0.1.0`, and the Windows gate ran before publishing |
 | Linux packaging is wired into CI and releases | Source inspection at `ae9fccc`: Ubuntu jobs build `.deb` + AppImage and publish them with Windows artifacts. This is not evidence that a Linux run, artifact, or desktop workflow has succeeded. |
 
@@ -40,12 +41,8 @@ What is left is behaviour that needs a person at a desktop.
 
 | Claim | Why it is still unverified |
 |---|---|
-| **Escape, Skip and Snooze dismiss the overlay** | The buttons render, but a press has never been observed. **The single most important gap**: an undismissable frameless always-on-top window is indistinguishable from UI-spoofing malware |
-| Breaks fire on time with every window minimised | The whole reason the clock is in Rust, and never actually tested that way |
+| Escape dismisses the overlay | Skip and Snooze are user-confirmed, but Escape itself has not yet been observed |
 | Idle and fullscreen suppression work at runtime | The consuming logic is unit-tested and the probes compile, but they have never run against a live desktop |
-| The toast style renders correctly | Only the overlay has been displayed |
-| Autostart writes and removes its `HKCU\...\Run` entry | Never toggled |
-| Settings survive a restart | Persistence round-trip never exercised |
 | No stale break after sleep/wake | `SLEEP_GAP_SECS = 90` is unit-tested but never met a real suspend |
 | The MSI installs correctly | Only the NSIS build has been installed |
 | Linux `.deb` / AppImage build, install, tray, and break runtime work | Packaging configuration exists after `v0.1.0`, but no post-change run/artifact or Linux desktop observation was inspected |
@@ -108,7 +105,7 @@ What is left is behaviour that needs a person at a desktop.
 | Where `platform/win.rs` gets verified | **Windows CI only** | No local option exists. It is ~40 lines of FFI, so the exposure is bounded. |
 | Local Windows builds | **`cargo-xwin` in the Linux container** | Fetches Microsoft's Windows SDK and links with `lld-link`, producing a real PE32 NSIS installer without MSVC on the host. `llvm-rc` handles the Windows icon and manifest resources; `makensis` packages. Verified end to end. |
 | MSI locally | **Not possible** | WiX is Windows-only. NSIS is the build that matters anyway, since it installs per-user without admin. |
-| Local build profile | **Dev by default, release on request** | The release profile's `lto = true` and `codegen-units = 1` keep the binary small but disable parallel codegen and add a single-threaded whole-program pass. Measured: 386 s cold release, 249 s cold dev, **35 s incremental dev**. The dev build also keeps its console, which makes `eprintln!` visible on a first run. |
+| Local build profile | **Dev by default, release on request** | The release profile's `lto = true` and `codegen-units = 1` keep the binary small but disable parallel codegen and add a single-threaded whole-program pass. Measured: 386 s cold release, 249 s cold dev, **35 s incremental dev**. Windows builds now hide the console; use debugger/log capture for diagnostics. |
 | Division of labour | **Docker for development, CI for release** | Explicit owner decision. The container gives a 35 s edit-rebuild loop; CI covers `platform/win.rs` and the MSI, and publishes on a tag. |
 | Release trigger | **`v*` tag, published not drafted** | Pushing a version tag is already deliberate, so the tag is the gate. `release.yml` re-runs every gate on Windows first, because passing locally never compiled `platform/win.rs`. |
 | Version scheme | **`v0.1.0` for the first release** | Briefly set to `0.0.1` then reverted on request. The tag must carry all three semver parts: `release.yml` compares the stripped tag against `tauri.conf.json`, so `v0.1` would fail against `0.1.0`. |
