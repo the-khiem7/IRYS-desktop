@@ -3,15 +3,15 @@ baseline_schema: "2.0"
 pack: "irys-desktop-app"
 document: "introduction"
 status: "active"
-updated: "2026-08-04"
-code_ref: "519c761"
+updated: "2026-08-10"
+code_ref: "ae9fccc"
 ---
 
 # Irys - scope and current truth
 
 ## Scope
 
-A Windows desktop companion that keeps the **30-30-30 rule** for the user: every
+A Windows-first desktop companion that keeps the **30-30-30 rule** for the user: every
 30 minutes, look ~30 feet (10 m) away for 30 seconds. It runs from the system
 tray with no window visible, interrupts on schedule with an animated eye and a
 countdown, and stays quiet when the user is already away or presenting.
@@ -77,9 +77,12 @@ directly:
 ## Target
 
 **v0.1.0 is released**, with the NSIS and MSI installers published from a green
-Windows build. What is left is hands-on confirmation, led by
-escapability and then background accuracy - a break firing on time with every
-window minimised, which is the entire reason the clock lives in Rust.
+Windows build. Since that release, HEAD also configures CI and release automation
+to build Linux `.deb` and AppImage packages; no post-change tag, package artifact,
+or Linux desktop run was inspected in this checkpoint. What is left is hands-on
+confirmation, led by escapability and then background accuracy - a break firing
+on time with every window minimised, which is the entire reason the clock lives
+in Rust.
 
 ## Constraints
 

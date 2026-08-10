@@ -3,8 +3,8 @@ baseline_schema: "2.0"
 pack: "irys-desktop-app"
 document: "useguide"
 status: "active"
-updated: "2026-08-04"
-code_ref: "519c761"
+updated: "2026-08-10"
+code_ref: "ae9fccc"
 ---
 
 # Contracts and procedures
@@ -150,10 +150,12 @@ Any other cargo command fails locally. The error is misleading - Rust finds Git'
 POSIX `link` utility on `PATH` and reports `link: extra operand ...`, not
 "linker not found".
 
-### Verify on CI (the Windows gate)
+### Verify on CI (the platform gates)
 
-Two workflows, both on `windows-latest`. Between them they are the only place
-`platform/win.rs` and the MSI get built.
+The Windows jobs remain the only configured place where `platform/win.rs` and
+the MSI are built. Current source also defines Ubuntu jobs for `.deb` and
+AppImage. Their configuration was inspected at `ae9fccc`; this checkpoint did
+not inspect a post-change workflow result or Linux runtime.
 
 **`ci.yml`** - every push and PR:
 
@@ -162,9 +164,13 @@ Two workflows, both on `windows-latest`. Between them they are the only place
 | `frontend` | `npm ci`, `vue-tsc --noEmit`, `vite build` |
 | `rust` | `cargo fmt --check`, `cargo clippy --all-targets -D warnings`, `cargo test --all-features` |
 | `bundle` | `tauri build` → MSI + NSIS uploaded as `irys-windows-installers` |
+| `bundle-linux` | Ubuntu 22.04 installs WebKitGTK/AppIndicator dependencies, then uploads `.deb` + AppImage as `irys-linux-packages` |
 
-**`release.yml`** - on a `v*` tag, or manual dispatch. Re-runs all gates, checks
-the tag matches `tauri.conf.json`, builds both installers, publishes the release.
+**`release.yml`** - on a `v*` tag, or manual dispatch. Re-runs the Windows Rust
+gates, checks the tag matches `tauri.conf.json`, builds Windows installers and
+Linux packages in parallel, then publishes all four artifact types. The prior
+`v0.1.0` evidence predates the Linux jobs, so do not call Linux shipping verified
+until a later tag/run and desktop check are observed.
 
 Reading CI without a token: the public REST API exposes run and job metadata
 (`/actions/runs`, `/actions/runs/{id}/jobs`), which gives per-step pass/fail. Log

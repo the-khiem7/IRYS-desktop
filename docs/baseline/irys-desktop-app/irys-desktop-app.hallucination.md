@@ -3,8 +3,8 @@ baseline_schema: "2.0"
 pack: "irys-desktop-app"
 document: "hallucination"
 status: "active"
-updated: "2026-08-04"
-code_ref: "519c761"
+updated: "2026-08-10"
+code_ref: "ae9fccc"
 ---
 
 # Open questions and closed decisions
@@ -31,6 +31,7 @@ install covered runtime.
 | **The overlay renders** | transparent frameless always-on-top did **not** come out black on Windows 11; ring sweeps, eye animates, Skip and Snooze visible |
 | A dev-profile build keeps its console | `windows_subsystem` is only set under `not(debug_assertions)` |
 | **The release pipeline works end to end** | `v0.1.0` published non-draft with both installers. The tag check accepted `v0.1.0` against `0.1.0`, and the Windows gate ran before publishing |
+| Linux packaging is wired into CI and releases | Source inspection at `ae9fccc`: Ubuntu jobs build `.deb` + AppImage and publish them with Windows artifacts. This is not evidence that a Linux run, artifact, or desktop workflow has succeeded. |
 
 ## Still unverified - do not treat as fact
 
@@ -47,6 +48,7 @@ What is left is behaviour that needs a person at a desktop.
 | Settings survive a restart | Persistence round-trip never exercised |
 | No stale break after sleep/wake | `SLEEP_GAP_SECS = 90` is unit-tested but never met a real suspend |
 | The MSI installs correctly | Only the NSIS build has been installed |
+| Linux `.deb` / AppImage build, install, tray, and break runtime work | Packaging configuration exists after `v0.1.0`, but no post-change run/artifact or Linux desktop observation was inspected |
 
 ## Open questions
 
@@ -76,6 +78,12 @@ What is left is behaviour that needs a person at a desktop.
 
 5. **Does the overlay land on the right monitor?** Depends on open question in
    roadmap item 3 resolving in favour of the cursor-following path.
+
+6. **Do the README's Escape/Skip/Snooze promises have manual evidence?** The
+   current code wires Escape and both buttons to the Rust commands, and focuses
+   overlay windows so Escape does not need a click first. That is strong
+   code-inspection evidence, but no key/button press was observed in the manual
+   run recorded by this pack; keep the runtime claim unverified until exercised.
 
 ## Closed decisions
 

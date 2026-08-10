@@ -3,15 +3,17 @@ baseline_schema: "2.0"
 pack: "irys-desktop-app"
 document: "roadmap"
 status: "active"
-updated: "2026-08-04"
-code_ref: "519c761"
+updated: "2026-08-10"
+code_ref: "ae9fccc"
 ---
 
 # Roadmap
 
-**v0.1.0 is released** - both installers published from a green Windows build.
-Everything automated passes and the app has been installed and run. What remains
-is hands-on verification, led by escapability.
+**v0.1.0 is released** - both Windows installers were published from a green
+Windows build. The current source additionally configures Linux `.deb` and
+AppImage packaging on CI and release tags, but that newer path has not been
+runtime- or artifact-verified in this checkpoint. The app has been installed and
+run on Windows; hands-on verification remains, led by escapability.
 
 ## Phases
 
@@ -31,6 +33,7 @@ is hands-on verification, led by escapability.
 | 11 | Local Windows builds via cargo-xwin | **complete** | `86447a8` | `npm run build:windows` produces a real PE32 NSIS installer from Linux. 386 s cold release, 249 s cold dev, **35 s incremental**. |
 | 12 | Release automation | **complete** | `507ccc8`, `519c761` | `release.yml` fired on `v0.1.0` and succeeded end to end: all gates on Windows, tag matched `tauri.conf.json`, both installers published non-draft. NSIS 1.31 MB, MSI 1.88 MB. |
 | 13 | Manual runtime verification | **partly done** | - | First install confirmed working; see *Remaining work*. |
+| 14 | Linux packages in CI/release | **implemented, unverified** | `2f91859` | `ci.yml` adds `bundle-linux` on `ubuntu-22.04`; `release.yml` adds `build-linux` and uploads `.deb` + AppImage assets. No run/release artifact was inspected here. |
 
 ## Dependencies
 
@@ -71,7 +74,8 @@ Recorded so they are not rediscovered:
 
 ## Remaining work
 
-All of it needs a desktop; none can be automated.
+All of it needs a desktop; none can be automated. The existing Windows manual
+evidence does not establish equivalent Linux runtime behaviour.
 
 1. **Escapability.** Do Escape, Skip and Snooze actually dismiss the overlay? The
    buttons render, but a press has never been observed. **Highest priority**: a

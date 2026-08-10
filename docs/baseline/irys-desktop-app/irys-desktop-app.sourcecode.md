@@ -3,8 +3,8 @@ baseline_schema: "2.0"
 pack: "irys-desktop-app"
 document: "sourcecode"
 status: "active"
-updated: "2026-08-04"
-code_ref: "519c761"
+updated: "2026-08-10"
+code_ref: "ae9fccc"
 ---
 
 # Architecture and execution flow
@@ -180,6 +180,12 @@ flowchart TD
     XWIN -->|"compiles"| WIN
     CIW -->|"compiles + tests"| WIN
 ```
+
+The current CI/release configuration also has Ubuntu package jobs that install
+WebKitGTK/AppIndicator dependencies and run `tauri build --bundles deb,appimage`.
+Those jobs publish `.deb` and AppImage files alongside the Windows MSI/NSIS
+assets on the next tag. This is source-inspected implementation evidence only;
+this checkpoint did not inspect a post-change workflow run or a Linux desktop.
 
 Two things worth internalising:
 
