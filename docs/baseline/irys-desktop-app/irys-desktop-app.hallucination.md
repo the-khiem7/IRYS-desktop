@@ -11,9 +11,7 @@ code_ref: "ae9fccc"
 
 ## Now verified (was unverified)
 
-Confirmed by execution, not inspection. A Docker Linux toolchain closed the
-compile-and-test gap; Windows CI covered `platform/win.rs`; the first manual
-install covered runtime.
+Confirmed by execution, not inspection. A Docker Linux toolchain closed the compile-and-test gap; Windows CI covered `platform/win.rs`; the first manual install covered runtime.
 
 | Claim | Evidence |
 |---|---|
@@ -36,8 +34,7 @@ install covered runtime.
 
 ## Still unverified - do not treat as fact
 
-Everything now compiles, all tests pass, and the app has been installed and run.
-What is left is behaviour that needs a person at a desktop.
+Everything now compiles, all tests pass, and the app has been installed and run. What is left is behaviour that needs a person at a desktop.
 
 | Claim | Why it is still unverified |
 |---|---|
@@ -49,38 +46,17 @@ What is left is behaviour that needs a person at a desktop.
 
 ## Open questions
 
-1. ~~**Do Irys's own `#[tauri::command]`s really need no capability grant?**~~
-   **RESOLVED on the first run: yes, no grant is needed.** The settings window
-   shows a live countdown, which means both `invoke` and event delivery work with
-   only `core:event:allow-listen` / `allow-unlisten` granted. `core:default` was
-   not required. This had been the one security-relevant guess in the build, and
-   it resolved in favour of least privilege: neither window can reach the store,
-   the filesystem, the shell, or the network.
+1. ~~**Do Irys's own `#[tauri::command]`s really need no capability grant?**~~ **RESOLVED on the first run: yes, no grant is needed.** The settings window shows a live countdown, which means both `invoke` and event delivery work with only `core:event:allow-listen` / `allow-unlisten` granted. `core:default` was not required. This had been the one security-relevant guess in the build, and it resolved in favour of least privilege: neither window can reach the store, the filesystem, the shell, or the network.
 
-2. **Will the WebAudio chime ever sound?** Webviews start an `AudioContext`
-   suspended until a user gesture. The first chime of a session may be silent.
-   Judged acceptable - the setting is off by default and the visual reminder is
-   the real signal - but if a chime is wanted reliably, it needs a different
-   mechanism.
+2. **Will the WebAudio chime ever sound?** Webviews start an `AudioContext` suspended until a user gesture. The first chime of a session may be silent. Judged acceptable - the setting is off by default and the visual reminder is the real signal - but if a chime is wanted reliably, it needs a different mechanism.
 
-3. **Is the toast's fixed taskbar allowance right?** Tauri 2 exposes monitor
-   bounds but not the work area, so the toast keeps clear of the bottom edge by a
-   fixed 56 px logical allowance. Wrong for an unusually tall, auto-hidden, or
-   side-docked taskbar.
+3. **Is the toast's fixed taskbar allowance right?** Tauri 2 exposes monitor bounds but not the work area, so the toast keeps clear of the bottom edge by a fixed 56 px logical allowance. Wrong for an unusually tall, auto-hidden, or side-docked taskbar.
 
-4. **Does `SystemTime`-based sleep detection behave on real hardware?** The
-   scheduler measures wall-clock deltas specifically because a monotonic clock can
-   stop across sleep. The `SLEEP_GAP_SECS = 90` threshold is a guess that only a
-   real suspend/resume can validate.
+4. **Does `SystemTime`-based sleep detection behave on real hardware?** The scheduler measures wall-clock deltas specifically because a monotonic clock can stop across sleep. The `SLEEP_GAP_SECS = 90` threshold is a guess that only a real suspend/resume can validate.
 
-5. **Does the overlay land on the right monitor?** Depends on open question in
-   roadmap item 3 resolving in favour of the cursor-following path.
+5. **Does the overlay land on the right monitor?** Depends on open question in roadmap item 3 resolving in favour of the cursor-following path.
 
-6. **Do the README's Escape/Skip/Snooze promises have manual evidence?** The
-   current code wires Escape and both buttons to the Rust commands, and focuses
-   overlay windows so Escape does not need a click first. That is strong
-   code-inspection evidence, but no key/button press was observed in the manual
-   run recorded by this pack; keep the runtime claim unverified until exercised.
+6. **Do the README's Escape/Skip/Snooze promises have manual evidence?** The current code wires Escape and both buttons to the Rust commands, and focuses overlay windows so Escape does not need a click first. That is strong code-inspection evidence, but no key/button press was observed in the manual run recorded by this pack; keep the runtime claim unverified until exercised.
 
 ## Closed decisions
 

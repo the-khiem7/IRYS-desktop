@@ -9,11 +9,7 @@ code_ref: "ae9fccc"
 
 # Roadmap
 
-**v0.1.0 is released** - both Windows installers were published from a green
-Windows build. The current source additionally configures Linux `.deb` and
-AppImage packaging on CI and release tags, but that newer path has not been
-runtime- or artifact-verified in this checkpoint. The app has been installed and
-run on Windows; hands-on verification remains, led by escapability.
+**v0.1.0 is released** - both Windows installers were published from a green Windows build. The current source additionally configures Linux `.deb` and AppImage packaging on CI and release tags, but that newer path has not been runtime- or artifact-verified in this checkpoint. The app has been installed and run on Windows; hands-on verification remains, led by escapability.
 
 ## Phases
 
@@ -53,48 +49,28 @@ flowchart LR
     P13 --> P12
 ```
 
-Docker (10, 11) covers the development loop. Windows CI (9, 12) covers the two
-things a Linux container structurally cannot: `platform/win.rs` and the MSI.
+Docker (10, 11) covers the development loop. Windows CI (9, 12) covers the two things a Linux container structurally cannot: `platform/win.rs` and the MSI.
 
 ## Fixes already worked through
 
 Recorded so they are not rediscovered:
 
-1. **`npm ci` failed** - `package-lock.json` was never regenerated after three
-   `@tauri-apps/plugin-*` packages were dropped from `package.json`. *Whenever
-   dependencies change, commit the lockfile.*
-2. **`cargo fmt --all --check` failed** - the Rust was hand-written and rustfmt
-   had never run. Verifiable locally, since fmt parses but never links.
-3. **`cargo clippy -D warnings` failed** - one unused `Manager` import in
-   `effects.rs`. `tray_by_id` is inherent on `AppHandle`, not a `Manager` method.
+1. **`npm ci` failed** - `package-lock.json` was never regenerated after three `@tauri-apps/plugin-*` packages were dropped from `package.json`. *Whenever dependencies change, commit the lockfile.*
+2. **`cargo fmt --all --check` failed** - the Rust was hand-written and rustfmt had never run. Verifiable locally, since fmt parses but never links.
+3. **`cargo clippy -D warnings` failed** - one unused `Manager` import in `effects.rs`. `tray_by_id` is inherent on `AppHandle`, not a `Manager` method.
 4. **Windows containers** - investigated and ruled out; see `hallucination`.
-5. **`set -e` and `&&`** - `[ test ] && cmd` aborts a script when the test is
-   false. Written twice, in `build-windows.sh` and `release.yml`. Use `if`.
-6. **Vite 8 has no esbuild** - it builds on rolldown, so naming `'esbuild'` as the
-   minifier fails to resolve.
+5. **`set -e` and `&&`** - `[ test ] && cmd` aborts a script when the test is false. Written twice, in `build-windows.sh` and `release.yml`. Use `if`.
+6. **Vite 8 has no esbuild** - it builds on rolldown, so naming `'esbuild'` as the minifier fails to resolve.
 
 ## Remaining work
 
-All of it needs a desktop; none can be automated. The existing Windows manual
-evidence does not establish equivalent Linux runtime behaviour.
+All of it needs a desktop; none can be automated. The existing Windows manual evidence does not establish equivalent Linux runtime behaviour.
 
-1. **Phase 15 desktop runtime check.** Confirm the implemented Settings navigation,
-   stored light/dark appearance, full-screen break, Corner reminder and Escape
-   handling on a Windows desktop. Skip and Snooze were confirmed before this UI
-   refresh and need a regression check.
-2. **Suppression at runtime** - idle-skip and fullscreen-defer. The logic is
-   unit-tested and the probes compile, but they have never run against a live
-   desktop.
-3. **Sleep/wake** - suspend across a break boundary; confirm no stale break fires
-   on resume, which is what `SLEEP_GAP_SECS = 90` exists to prevent.
-4. **Windows GUI startup.** Rebuild and start the changed app from its normal
-   shortcut/command; confirm no terminal panel appears and closing a former
-   terminal process can no longer end IRYS.
+1. **Phase 15 desktop runtime check.** Confirm the implemented Settings navigation, stored light/dark appearance, full-screen break, Corner reminder and Escape handling on a Windows desktop. Skip and Snooze were confirmed before this UI refresh and need a regression check.
+2. **Suppression at runtime** - idle-skip and fullscreen-defer. The logic is unit-tested and the probes compile, but they have never run against a live desktop.
+3. **Sleep/wake** - suspend across a break boundary; confirm no stale break fires on resume, which is what `SLEEP_GAP_SECS = 90` exists to prevent.
+4. **Windows GUI startup.** Rebuild and start the changed app from its normal shortcut/command; confirm no terminal panel appears and closing a former terminal process can no longer end IRYS.
 
-Regression note: the Linux container does **not** compile `platform/win.rs`.
-Treat any change to that file as CI-verified only.
+Regression note: the Linux container does **not** compile `platform/win.rs`. Treat any change to that file as CI-verified only.
 
-UI implementation note: phase 15 is a visual/layout change, not permission or
-scheduler work. Preserve the existing Rust-owned state, IPC contract, two-window
-model, accessibility, reduced-motion support, and escapability while replacing
-the presentation.
+UI implementation note: phase 15 is a visual/layout change, not permission or scheduler work. Preserve the existing Rust-owned state, IPC contract, two-window model, accessibility, reduced-motion support, and escapability while replacing the presentation.
