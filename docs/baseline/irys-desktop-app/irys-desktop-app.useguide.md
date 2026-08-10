@@ -264,8 +264,11 @@ Set the work interval to 1 minute first, and have `Ctrl+Shift+Esc` ready.
 - **No corporate identifiers** - no hostnames, account names, or domains in
   committed files or commit messages. Write the finding, not the fingerprint.
 - **`PLAN.md`**: Mermaid for the architecture graph, ASCII for the file tree.
-- **UI direction**: apply WinUI 3 / Windows 11 Fluent **light** when changing
-  either Vue window. Use `docs/brief/irys-winui3-settings.html` and
+- **UI direction**: use **IRYS** as the display name. Settings use WinUI 3 /
+  Windows 11 Fluent and offer light/dark appearance. The full-screen break is
+  dark-only and reuses the complete animated SVG eye (blink, distant gaze and
+  pupil dilation) to avoid a nighttime flash. Use
+  `docs/brief/irys-winui3-settings.html` and
   `docs/brief/irys-winui3-break.html` for review intent; they are standalone
   prototypes, not runtime assets. Keep implementation local, CSP-compatible,
   keyboard-accessible, and respectful of reduced motion.

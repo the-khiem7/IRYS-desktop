@@ -85,8 +85,10 @@ on time with every window minimised, which is the entire reason the clock lives
 in Rust.
 
 The next UI implementation must make the app feel native to its Windows-first
-audience: **WinUI 3 / Windows 11 Fluent light** is the governing visual
-direction. The approved review-only prototypes are
+audience: **IRYS** is the user-facing product spelling. Settings use the WinUI
+3 / Windows 11 Fluent direction with user-selectable light/dark appearance;
+the full-screen break is intentionally dark-only to avoid a bright flash at
+night. The approved review-only prototypes are
 `docs/brief/irys-winui3-settings.html` and
 `docs/brief/irys-winui3-break.html`; they are not wired into the app yet.
 

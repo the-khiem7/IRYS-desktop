@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Irys - WinUI 3 settings brief</title>
+  <title>IRYS - WinUI 3 settings brief</title>
   <style>
     :root { color-scheme: dark; --bg:#202020; --nav:#191919; --card:#2b2b2b; --card-hi:#333; --line:#3f3f3f; --text:#f5f5f5; --muted:#b9b9b9; --accent:#68d8d2; --accent-ink:#003b39; --danger:#ffb4ab; font-family:"Segoe UI Variable Text","Segoe UI",system-ui,sans-serif; }
     * { box-sizing:border-box } body { margin:0; min-width:900px; background:#111; color:var(--text); }
@@ -24,25 +24,32 @@
     .shell .nav { background:var(--nav); border-color:#e7e7e7 }.nav button { color:#303030 }.nav button:hover { background:#eee }.nav button.active { background:#e5f1fb; color:#1a1a1a }.nav footer { border-color:#e5e5e5; color:#707070 }
     .card { box-shadow:0 1px 2px #00000008 }.next { background:linear-gradient(120deg,#e5f1fb,#f6fbff 62%,#fff) }.label { color:#315b7d }.secondary { color:#1b1b1b; background:#fff; border-color:#8a8a8a }.rule b { background:#e5f1fb }
     .value { border-color:#777; background:#fff }.value input { color:#1b1b1b }.switch { background:#8a8a8a }.switch.on i { background:#fff }.segmented { background:#f4f4f4; border-color:#8a8a8a }.segmented button { color:#333 }.segmented button.on { background:#fff; color:#111; box-shadow:0 1px 2px #0002 }.notice { color:#234a68; background:#edf6fc; border-color:#b8dff8 }
+    /* Settings follows the user's chosen app appearance; the break reminder stays dark. */
+    :root[data-theme="dark"] { color-scheme:dark; --bg:#202020; --nav:#191919; --card:#2b2b2b; --line:#3f3f3f; --text:#f5f5f5; --muted:#b9b9b9; --accent:#72bfff; --accent-ink:#003b39; }
+    :root[data-theme="dark"] body { background:#111; }:root[data-theme="dark"] .window { background:var(--bg); border-color:#505050; box-shadow:0 28px 80px #000a; }:root[data-theme="dark"] .titlebar { border-color:#363636; }:root[data-theme="dark"] .window-actions { color:#bdbdbd; }
+    :root[data-theme="dark"] .shell .nav { background:var(--nav); border-color:#363636; }:root[data-theme="dark"] .nav button { color:#d8d8d8; }:root[data-theme="dark"] .nav button:hover,:root[data-theme="dark"] .nav button.active { background:#3a3a3a; color:#fff; }:root[data-theme="dark"] .nav footer { border-color:#353535; color:#969696; }
+    :root[data-theme="dark"] .card { box-shadow:none; }:root[data-theme="dark"] .next { background:linear-gradient(120deg,#174a48,#263b3a 62%,#2b2b2b); }:root[data-theme="dark"] .label { color:#d8e4e3; }:root[data-theme="dark"] .secondary { color:#fff; background:#393939; border-color:#555; }:root[data-theme="dark"] .rule b { background:#414141; }
+    :root[data-theme="dark"] .value { border-color:#5b5b5b; background:#1f1f1f; }:root[data-theme="dark"] .value input { color:#fff; }:root[data-theme="dark"] .segmented { background:#1c1c1c; border-color:#555; }:root[data-theme="dark"] .segmented button { color:#ddd; }:root[data-theme="dark"] .segmented button.on { background:#505050; color:#fff; box-shadow:none; }:root[data-theme="dark"] .notice { color:#d8eeee; background:#173433; border-color:#29605d; }
+    .titlebar { justify-content:flex-start }.title-tools { margin-left:auto; display:flex; align-items:center; gap:8px; color:var(--muted); font-size:12px }.theme-toggle { display:grid; place-items:center; width:28px; height:28px; padding:0; border:1px solid #8a8a8a; border-radius:4px; background:#fff; color:#1b1b1b }.window-actions { margin-left:18px }:root[data-theme="dark"] .theme-toggle { color:#fff; background:#303030; border-color:#666; }
   </style>
 </head>
 <body>
   <div class="window">
-    <header class="titlebar"><div class="brand"><span class="eye"></span>Irys</div><div class="window-actions">— □ ×</div></header>
+    <header class="titlebar"><div class="brand"><span class="eye"></span>IRYS</div><div class="title-tools"><span>Theme</span><button class="theme-toggle" id="theme-toggle" aria-label="Switch to dark theme">◐</button></div><div class="window-actions">— □ ×</div></header>
     <div class="shell">
-      <aside class="nav"><h2>Settings</h2><button class="active"><span class="ico">⌂</span>Home</button><button><span class="ico">◷</span>Reminder</button><button><span class="ico">☷</span>Schedule</button><button><span class="ico">♧</span>Focus &amp; presence</button><button><span class="ico">⚙</span>System</button><footer>Irys 0.1.0<br />Your settings stay on this device.</footer></aside>
+      <aside class="nav"><h2>IRYS</h2><button class="active"><span class="ico">⌂</span>Overview</button><button><span class="ico">◷</span>Timing</button><button><span class="ico">♧</span>Focus &amp; presence</button><button><span class="ico">⚙</span>System</button><footer>IRYS 0.1.0<br />Your settings stay on this device.</footer></aside>
       <main>
-        <div class="crumb">Irys / Home</div><h1>Good afternoon</h1><p class="intro">Your next eye break is on schedule. Tune the routine here without needing to leave your desktop.</p>
+        <div class="crumb">IRYS / Overview</div><h1>Good afternoon</h1><p class="intro">Your next eye break is on schedule. Tune the routine here without needing to leave your desktop.</p>
         <section class="dashboard"><div class="card next"><div class="label">NEXT EYE BREAK</div><div class="time">28:09</div><div class="actions"><button class="secondary">Pause</button><button class="primary">Take a break now</button></div></div><div class="card today"><strong>30-30-30</strong><span>Every 30 minutes, look 30 feet away for 30 seconds.</span><div class="rule"><b>30</b><b>30'</b><b>30s</b></div></div></section>
         <h2>Quick settings</h2><section class="settings">
           <article class="card panel"><h3>Timing</h3><p>A pace that fits your workday.</p><div class="row"><div><strong>Work interval</strong><p>Time between breaks</p></div><label class="value"><input value="30" /><small>minutes</small></label></div><div class="row"><div><strong>Break length</strong><p>How long to look away</p></div><label class="value"><input value="30" /><small>seconds</small></label></div><div class="row"><div><strong>Snooze length</strong><p>When you need a few more minutes</p></div><label class="value"><input value="5" /><small>minutes</small></label></div></article>
           <article class="card panel"><h3>Reminder</h3><p>Choose how Irys gets your attention.</p><div class="row"><div><strong>Style</strong><p>Full screen or a small corner card</p></div><div class="segmented"><button class="on">Full screen</button><button>Corner</button></div></div><div class="row"><div><strong>Heads-up notification</strong><p>A gentle nudge 30 seconds early</p></div><button class="switch on" aria-label="Heads-up on"><i></i></button></div><div class="row"><div><strong>Chime</strong><p>A soft tone when a break starts</p></div><button class="switch" aria-label="Chime off"><i></i></button></div></article>
           <article class="card panel"><h3>Focus &amp; presence</h3><p>Keep reminders out of the way.</p><div class="row"><div><strong>Skip when I'm away</strong><p>Reset if you have been idle</p></div><button class="switch on"><i></i></button></div><div class="row"><div><strong>Wait for full-screen apps</strong><p>Defer a break while presenting or playing</p></div><button class="switch on"><i></i></button></div></article>
           <article class="card panel"><h3>System</h3><p>How Irys fits into Windows.</p><div class="row"><div><strong>Start with Windows</strong><p>Run when you sign in</p></div><button class="switch"><i></i></button></div><div class="row"><div><strong>About Irys</strong><p>Version 0.1.0</p></div><button class="secondary">About</button></div></article>
-        </section><div class="notice"><b>✓</b><span>Changes save automatically. Irys keeps working from the system tray when this window is closed.</span></div>
+        </section><div class="notice"><b>✓</b><span>Changes save automatically. IRYS keeps working from the system tray when this window is closed.</span></div>
       </main>
     </div>
   </div>
-  <script>document.querySelectorAll('.switch').forEach(x=>x.onclick=()=>x.classList.toggle('on'));document.querySelectorAll('.segmented').forEach(g=>g.onclick=e=>{if(e.target.tagName==='BUTTON'){g.querySelectorAll('button').forEach(b=>b.classList.remove('on'));e.target.classList.add('on')}})</script>
+  <script>document.querySelectorAll('.switch').forEach(x=>x.onclick=()=>x.classList.toggle('on'));document.querySelectorAll('.segmented').forEach(g=>g.onclick=e=>{if(e.target.tagName==='BUTTON'){g.querySelectorAll('button').forEach(b=>b.classList.remove('on'));e.target.classList.add('on')}});document.querySelector('#theme-toggle').onclick=()=>{const root=document.documentElement;const dark=root.dataset.theme!=='dark';root.dataset.theme=dark?'dark':'light';document.querySelector('#theme-toggle').setAttribute('aria-label',dark?'Switch to light theme':'Switch to dark theme')}</script>
 </body>
 </html>
