@@ -3,8 +3,8 @@ baseline_schema: "2.0"
 pack: "irys-desktop-app"
 document: "hallucination"
 status: "active"
-updated: "2026-08-10"
-code_ref: "ae9fccc"
+updated: "2026-08-14"
+code_ref: "ccf4340"
 ---
 
 # Open questions and closed decisions
@@ -27,7 +27,7 @@ Confirmed by execution, not inspection. A Docker Linux toolchain closed the comp
 | **The tray icon appears** | eye icon visible, tooltip counts down live (`next break in 29:54`) |
 | **`invoke` and events work under minimal capabilities** | settings window shows a live countdown - resolves open question 1 |
 | **The overlay renders** | transparent frameless always-on-top did **not** come out black on Windows 11; ring sweeps, eye animates, Skip and Snooze visible |
-| Windows GUI startup has no terminal panel | `main.rs` selects the Windows subsystem for every Windows build. This code change still needs a rebuilt-app user check. |
+| Windows GUI startup has no terminal panel | `main.rs` selects the Windows subsystem for every Windows build (`1e735a5`), and that fix is included in the published `v0.1.2` build. Still needs a check against the `v0.1.2` installer specifically, not the earlier one already installed. |
 | Skip, Snooze, background timing, Corner, autostart and persistence work | User-reported sustained Windows use; Escape, idle/fullscreen suppression and sleep/wake remain unverified. |
 | **The release pipeline works end to end** | `v0.1.0` published non-draft with both installers. The tag check accepted `v0.1.0` against `0.1.0`, and the Windows gate ran before publishing |
 | Linux packaging is wired into CI and releases | Source inspection at `ae9fccc`: Ubuntu jobs build `.deb` + AppImage and publish them with Windows artifacts. This is not evidence that a Linux run, artifact, or desktop workflow has succeeded. |
@@ -42,7 +42,7 @@ Everything now compiles, all tests pass, and the app has been installed and run.
 | Idle and fullscreen suppression work at runtime | The consuming logic is unit-tested and the probes compile, but they have never run against a live desktop |
 | No stale break after sleep/wake | `SLEEP_GAP_SECS = 90` is unit-tested but never met a real suspend |
 | The MSI installs correctly | Only the NSIS build has been installed |
-| Linux `.deb` / AppImage build, install, tray, and break runtime work | Packaging configuration exists after `v0.1.0`, but no post-change run/artifact or Linux desktop observation was inspected |
+| Linux `.deb` / AppImage build, install, tray, and break runtime work | The `v0.1.2` GitHub release now carries both as real uploaded assets (checked via the GitHub API: `draft:false`, non-zero sizes, `state:uploaded`), so the pipeline itself is confirmed - but no install, tray, or break runtime was observed on a Linux desktop |
 
 ## Open questions
 

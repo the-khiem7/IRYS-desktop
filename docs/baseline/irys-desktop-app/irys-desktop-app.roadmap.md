@@ -3,13 +3,13 @@ baseline_schema: "2.0"
 pack: "irys-desktop-app"
 document: "roadmap"
 status: "active"
-updated: "2026-08-10"
-code_ref: "ae9fccc"
+updated: "2026-08-14"
+code_ref: "ccf4340"
 ---
 
 # Roadmap
 
-**v0.1.0 is released** - both Windows installers were published from a green Windows build. The current source additionally configures Linux `.deb` and AppImage packaging on CI and release tags, but that newer path has not been runtime- or artifact-verified in this checkpoint. The app has been installed and run on Windows; hands-on verification remains, led by escapability.
+**v0.1.2 is released** - `v0.1.0`, `v0.1.1` and `v0.1.2` have each published from a green Windows build with no manual release step. `v0.1.2` is the first tag whose GitHub release was checked directly (via the public API, not just source inspection) and carries all 4 real assets: NSIS `.exe`, `.msi`, `.deb`, `.AppImage`. It also bundles two changes the pack had not yet folded in: the Phase 15 WinUI 3 UI (`7bb879b`) and the `main.rs` fix that forces the Windows subsystem on every Windows build (`1e735a5`), so `v0.1.2` is the build the remaining manual checks below should target - not an older installer. The app has been installed and run on an earlier Windows build; hands-on verification of `v0.1.2` remains, led by escapability.
 
 ## Phases
 
@@ -27,9 +27,9 @@ code_ref: "ae9fccc"
 | 9 | Windows CI | **fully green** | `3dd940b` | All 3 jobs SUCCESS, including the release profile and both installers. |
 | 10 | Docker verification path | **complete** | `2a77781` | `npm run verify`: frontend gates, fmt, clippy and 43 tests on a Linux toolchain, in seconds. Removed the dependency on CI logs that return 403 without a token. |
 | 11 | Local Windows builds via cargo-xwin | **complete** | `86447a8` | `npm run build:windows` produces a real PE32 NSIS installer from Linux. 386 s cold release, 249 s cold dev, **35 s incremental**. |
-| 12 | Release automation | **complete** | `507ccc8`, `519c761` | `release.yml` fired on `v0.1.0` and succeeded end to end: all gates on Windows, tag matched `tauri.conf.json`, both installers published non-draft. NSIS 1.31 MB, MSI 1.88 MB. |
+| 12 | Release automation | **complete** | `507ccc8`, `519c761`, `ce33e30`, `ccf4340` | `release.yml` fired on `v0.1.0` and succeeded end to end: all gates on Windows, tag matched `tauri.conf.json`, both installers published non-draft. Repeated automatically for `v0.1.1` and `v0.1.2` with no manual step; `v0.1.2` confirmed via the GitHub API as `draft:false`, `prerelease:false`, with 4 uploaded assets. |
 | 13 | Manual runtime verification | **substantially verified** | - | User confirmed Skip/Snooze dismiss the overlay, minimized/background timing continues, Corner reminder displays, autostart works, and settings persist across restart. Idle/fullscreen suppression and sleep/wake remain unverified. |
-| 14 | Linux packages in CI/release | **implemented, unverified** | `2f91859` | `ci.yml` adds `bundle-linux` on `ubuntu-22.04`; `release.yml` adds `build-linux` and uploads `.deb` + AppImage assets. No run/release artifact was inspected here. |
+| 14 | Linux packages in CI/release | **artifacts published, desktop runtime unverified** | `2f91859`, `ccf4340` | `ci.yml` adds `bundle-linux` on `ubuntu-22.04`; `release.yml` adds `build-linux` and uploads `.deb` + AppImage assets. `v0.1.2`'s GitHub release now carries both as real uploaded assets (`IRYS_0.1.2_amd64.deb`, `IRYS_0.1.2_amd64.AppImage`), which narrows the gap from "does the pipeline exist" to "does the resulting install/tray/break behave" - still not inspected on a Linux desktop. |
 | 15 | WinUI 3 desktop UI refresh | **implemented; verification pending** | - | `src-vue` now has a desktop-shaped Fluent settings window with local light/dark appearance, a dark-only wide break overlay with the complete animated eye, and `IRYS` display branding across the user-facing app surfaces. Rust scheduling and IPC remain unchanged. |
 
 ## Dependencies
@@ -64,12 +64,12 @@ Recorded so they are not rediscovered:
 
 ## Remaining work
 
-All of it needs a desktop; none can be automated. The existing Windows manual evidence does not establish equivalent Linux runtime behaviour.
+All of it needs a desktop; none can be automated - confirmed again on this checkpoint: no phase in this roadmap is ready to execute without a person physically at the machine (pressing Escape, waiting out idle, opening a fullscreen app, suspending/resuming, watching the overlay). The existing Windows manual evidence does not establish equivalent Linux runtime behaviour, and it predates `v0.1.2`.
 
-1. **Phase 15 desktop runtime check.** Confirm the implemented Settings navigation, stored light/dark appearance, full-screen break, Corner reminder and Escape handling on a Windows desktop. Skip and Snooze were confirmed before this UI refresh and need a regression check.
+1. **Phase 15 desktop runtime check, on `v0.1.2`.** Install `IRYS_0.1.2_x64-setup.exe` (per-user, no admin) and confirm the implemented Settings navigation, stored light/dark appearance, full-screen break, Corner reminder and Escape handling. Skip and Snooze were confirmed before this UI refresh and need a regression check.
 2. **Suppression at runtime** - idle-skip and fullscreen-defer. The logic is unit-tested and the probes compile, but they have never run against a live desktop.
 3. **Sleep/wake** - suspend across a break boundary; confirm no stale break fires on resume, which is what `SLEEP_GAP_SECS = 90` exists to prevent.
-4. **Windows GUI startup.** Rebuild and start the changed app from its normal shortcut/command; confirm no terminal panel appears and closing a former terminal process can no longer end IRYS.
+4. **Windows GUI startup on `v0.1.2`.** Start the app from its normal shortcut/command and confirm no terminal panel appears - this build carries the `main.rs` Windows-subsystem fix (`1e735a5`) that the previous checkpoint had not yet had a rebuilt app to test.
 
 Regression note: the Linux container does **not** compile `platform/win.rs`. Treat any change to that file as CI-verified only.
 
