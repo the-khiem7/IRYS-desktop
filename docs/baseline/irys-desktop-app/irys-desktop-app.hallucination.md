@@ -3,8 +3,8 @@ baseline_schema: "2.0"
 pack: "irys-desktop-app"
 document: "hallucination"
 status: "active"
-updated: "2026-08-14"
-code_ref: "ccf4340"
+updated: "2026-08-24"
+code_ref: "f0b78f0"
 ---
 
 # Open questions and closed decisions
@@ -27,10 +27,10 @@ Confirmed by execution, not inspection. A Docker Linux toolchain closed the comp
 | **The tray icon appears** | eye icon visible, tooltip counts down live (`next break in 29:54`) |
 | **`invoke` and events work under minimal capabilities** | settings window shows a live countdown - resolves open question 1 |
 | **The overlay renders** | transparent frameless always-on-top did **not** come out black on Windows 11; ring sweeps, eye animates, Skip and Snooze visible |
-| Windows GUI startup has no terminal panel | `main.rs` selects the Windows subsystem for every Windows build (`1e735a5`), and that fix is included in the published `v0.1.2` build. Still needs a check against the `v0.1.2` installer specifically, not the earlier one already installed. |
-| Skip, Snooze, background timing, Corner, autostart and persistence work | User-reported sustained Windows use; Escape, idle/fullscreen suppression and sleep/wake remain unverified. |
+| Windows GUI startup has no terminal panel | User confirmed this against the released v0.1.2 build carrying `1e735a5`. |
+| Phase 15 UI and runtime scheduler behaviours work | User confirmed v0.1.2 Settings navigation, stored light/dark appearance, full-screen/Corner reminders, Escape/Skip/Snooze, idle/fullscreen suppression and sleep/wake. |
 | **The release pipeline works end to end** | `v0.1.0` published non-draft with both installers. The tag check accepted `v0.1.0` against `0.1.0`, and the Windows gate ran before publishing |
-| Linux packaging is wired into CI and releases | Source inspection at `ae9fccc`: Ubuntu jobs build `.deb` + AppImage and publish them with Windows artifacts. This is not evidence that a Linux run, artifact, or desktop workflow has succeeded. |
+| Linux packaging and release assets exist | `v0.1.2` publishes `.deb` and AppImage assets alongside the Windows installers. This is not evidence that a Linux desktop run has succeeded. |
 
 ## Still unverified - do not treat as fact
 
@@ -38,9 +38,6 @@ Everything now compiles, all tests pass, and the app has been installed and run.
 
 | Claim | Why it is still unverified |
 |---|---|
-| Escape dismisses the overlay | Skip and Snooze are user-confirmed, but Escape itself has not yet been observed |
-| Idle and fullscreen suppression work at runtime | The consuming logic is unit-tested and the probes compile, but they have never run against a live desktop |
-| No stale break after sleep/wake | `SLEEP_GAP_SECS = 90` is unit-tested but never met a real suspend |
 | The MSI installs correctly | Only the NSIS build has been installed |
 | Linux `.deb` / AppImage build, install, tray, and break runtime work | The `v0.1.2` GitHub release now carries both as real uploaded assets (checked via the GitHub API: `draft:false`, non-zero sizes, `state:uploaded`), so the pipeline itself is confirmed - but no install, tray, or break runtime was observed on a Linux desktop |
 
@@ -52,11 +49,11 @@ Everything now compiles, all tests pass, and the app has been installed and run.
 
 3. **Is the toast's fixed taskbar allowance right?** Tauri 2 exposes monitor bounds but not the work area, so the toast keeps clear of the bottom edge by a fixed 56 px logical allowance. Wrong for an unusually tall, auto-hidden, or side-docked taskbar.
 
-4. **Does `SystemTime`-based sleep detection behave on real hardware?** The scheduler measures wall-clock deltas specifically because a monotonic clock can stop across sleep. The `SLEEP_GAP_SECS = 90` threshold is a guess that only a real suspend/resume can validate.
+4. ~~**Does `SystemTime`-based sleep detection behave on real hardware?**~~ **RESOLVED:** the user passed the v0.1.2 sleep/wake desktop check; no stale break was reported.
 
 5. **Does the overlay land on the right monitor?** Depends on open question in roadmap item 3 resolving in favour of the cursor-following path.
 
-6. **Do the README's Escape/Skip/Snooze promises have manual evidence?** The current code wires Escape and both buttons to the Rust commands, and focuses overlay windows so Escape does not need a click first. That is strong code-inspection evidence, but no key/button press was observed in the manual run recorded by this pack; keep the runtime claim unverified until exercised.
+6. ~~**Do the README's Escape/Skip/Snooze promises have manual evidence?**~~ **RESOLVED:** the user exercised all three on v0.1.2.
 
 ## Closed decisions
 
@@ -84,7 +81,7 @@ Everything now compiles, all tests pass, and the app has been installed and run.
 | Local build profile | **Dev by default, release on request** | The release profile's `lto = true` and `codegen-units = 1` keep the binary small but disable parallel codegen and add a single-threaded whole-program pass. Measured: 386 s cold release, 249 s cold dev, **35 s incremental dev**. Windows builds now hide the console; use debugger/log capture for diagnostics. |
 | Division of labour | **Docker for development, CI for release** | Explicit owner decision. The container gives a 35 s edit-rebuild loop; CI covers `platform/win.rs` and the MSI, and publishes on a tag. |
 | Release trigger | **`v*` tag, published not drafted** | Pushing a version tag is already deliberate, so the tag is the gate. `release.yml` re-runs every gate on Windows first, because passing locally never compiled `platform/win.rs`. |
-| Version scheme | **`v0.1.1` is the next release** | `v0.1.0` is already published. The tag must carry all three semver parts: `release.yml` compares the stripped tag against `tauri.conf.json`, so `v0.1` would fail against `0.1.1`. |
+| Version scheme | **`v0.1.3` is the next release** | `v0.1.2` is already published. The tag must carry all three semver parts: `release.yml` compares the stripped tag against `tauri.conf.json`, so `v0.1` would fail against `0.1.3`. |
 | Corporate identifiers in docs | **Scrubbed and prohibited** | A hostname and account names had been written into `PLAN.md`. Never pushed; removed by amend + `reflog expire` + `gc --prune=now`, verified absent from the whole object store. |
 | Diagram format in `PLAN.md` | **Mermaid for the architecture graph, ASCII for the file tree** | User's correction - a file tree reads better as ASCII. |
-| Desktop UI direction | **IRYS + Fluent settings; dark break** | User-facing product name is `IRYS`. Phase 15 is approved and implemented in `src-vue`: Settings use a NavigationView-like desktop composition with local selectable light/dark appearance; the wide calm break view is dark-only and retains the complete animated eye. Review artifacts remain in `docs/brief/` as visual references. |
+| Desktop UI direction | **IRYS + Fluent settings; dark break** | User-facing product name is `IRYS`. Phase 15 is implemented and user-verified on v0.1.2. The temporary review artifacts were retired after acceptance in `f0b78f0`. |

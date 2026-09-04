@@ -3,8 +3,8 @@ baseline_schema: "2.0"
 pack: "irys-desktop-app"
 document: "sourcecode"
 status: "active"
-updated: "2026-08-10"
-code_ref: "ae9fccc"
+updated: "2026-08-24"
+code_ref: "f0b78f0"
 ---
 
 # Architecture and execution flow
@@ -113,7 +113,7 @@ Two functions, `#[cfg]`-split, are the entire OS surface. **All `unsafe` in the 
 
 ### UI direction for the next frontend pass
 
-Phase 15 ports the review direction into `src-vue`. The prototypes in `docs/brief/irys-winui3-settings.html` and `docs/brief/irys-winui3-break.html` remain visual references, not runtime assets. The governing rules are:
+Phase 15 ports the approved direction into `src-vue` and has user-verified Windows runtime evidence on v0.1.2. The temporary review briefs were intentionally removed after acceptance in `f0b78f0`. The governing rules are:
 
 - Use **IRYS** as the product display name everywhere a user sees the brand. Internal identifiers (`irys://tick`, Cargo/package identifiers, and app ID) remain lowercase unless their technical contract changes.
 - **Settings:** WinUI 3 / Windows 11 Fluent with a light Mica-like default, restrained elevation, Segoe UI Variable/Text, and Windows blue (`#0067c0`) as the primary accent. It must offer a user-controlled light/dark appearance.

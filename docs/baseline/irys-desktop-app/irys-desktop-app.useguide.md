@@ -3,8 +3,8 @@ baseline_schema: "2.0"
 pack: "irys-desktop-app"
 document: "useguide"
 status: "active"
-updated: "2026-08-10"
-code_ref: "ae9fccc"
+updated: "2026-08-24"
+code_ref: "f0b78f0"
 ---
 
 # Contracts and procedures
@@ -152,10 +152,10 @@ npm run icon      # make-icon.mjs -> icon-source.png -> tauri icon
 #    and the irys entry in src-tauri/Cargo.lock
 # 2. Verify, then commit
 npm run verify
-# 3. Tag with all three semver parts - `v0.1`, would fail against `0.1.1`
-git tag -a v0.1.1 -m "..."
+# 3. Tag with all three semver parts - `v0.1`, would fail against `0.1.3`
+git tag -a v0.1.3 -m "..."
 git push origin main
-git push origin v0.1.1
+git push origin v0.1.3
 ```
 
 `release.yml` then re-runs `fmt`, `clippy` and the tests **on Windows** before publishing. That is not redundant with `npm run verify`: the local loop never compiles `platform/win.rs`, so a tag's Windows build is genuinely the first one. It also builds the MSI, which Docker cannot, and publishes both installers.
@@ -183,20 +183,17 @@ Set the work interval to 1 minute first, and have `Ctrl+Shift+Esc` ready.
 - Tray icon appears; tooltip counts down live
 - Settings window renders with a live countdown, so `invoke` and events both work
 - Overlay renders: dark veil, sweeping ring, animated eye, Skip and Snooze visible
+- On v0.1.2, Settings navigation and stored light/dark appearance, full-screen and Corner reminders, Escape/Skip/Snooze, idle/fullscreen suppression, sleep/wake and GUI startup without a terminal panel were user-verified
 
-**Still to do, in priority order:**
+**Still to do, when a target platform requires it:**
 
-1. **Escape** - Skip and Snooze are user-confirmed. Observe Escape after every break-window change; it is non-negotiable for an always-on-top overlay.
-2. **Idle skip** - leave input alone past the threshold; no break, interval resets.
-3. **Fullscreen defer** - F11 a video across the break moment; the overlay is postponed, then fires after exiting.
-4. **Tray lifecycle** - close settings; breaks keep firing. Quit actually exits.
-5. **Autostart cleanup** - user-confirmed as working; separately inspect the `HKCU\...\Run` add/remove and re-login lifecycle when practical.
-6. **Sleep/wake** - suspend across a break boundary; no stale break on resume.
-7. **Footprint** - idle CPU near zero.
+1. **Linux desktop runtime** - install a published `.deb` or AppImage, then verify tray, break and dismissal on a Linux desktop.
+2. **MSI installation** - the per-user NSIS installer works; the MSI has not been installed manually.
+3. **Optional operating checks** - inspect the `HKCU\...\Run` add/remove lifecycle and idle CPU if needed.
 
 ## Conventions to keep
 
 - **Commit at every phase boundary**, with the phase named in the message.
 - **No corporate identifiers** - no hostnames, account names, or domains in committed files or commit messages. Write the finding, not the fingerprint.
 - **`PLAN.md`**: Mermaid for the architecture graph, ASCII for the file tree.
-- **UI direction**: use **IRYS** as the display name. Settings use WinUI 3 / Windows 11 Fluent and offer light/dark appearance. The full-screen break is dark-only and reuses the complete animated SVG eye (blink, distant gaze and pupil dilation) to avoid a nighttime flash. Use `docs/brief/irys-winui3-settings.html` and `docs/brief/irys-winui3-break.html` for review intent; Phase 15 ports that intent into `src-vue` without importing the HTML as a runtime asset. Keep implementation local, CSP-compatible, keyboard-accessible, and respectful of reduced motion.
+- **UI direction**: use **IRYS** as the display name. Settings use WinUI 3 / Windows 11 Fluent and offer light/dark appearance. The full-screen break is dark-only and reuses the complete animated SVG eye (blink, distant gaze and pupil dilation) to avoid a nighttime flash. Phase 15 is implemented in `src-vue` and user-verified on Windows v0.1.2; the temporary design briefs were removed after acceptance. Keep implementation local, CSP-compatible, keyboard-accessible, and respectful of reduced motion.
