@@ -8,7 +8,7 @@
  * IPC contract or affects the dark-only break window.
  */
 
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 import AnimatedEye from '@/components/AnimatedEye.vue'
 import { useSettings } from '@/composables/useSettings'
@@ -22,6 +22,15 @@ const { snapshot } = useTimer()
 const { settings, saving, error, update } = useSettings()
 const appearance = ref<Appearance>('light')
 const activeSection = ref('overview')
+const localHour = ref(new Date().getHours())
+const greeting = computed(() =>
+  localHour.value < 12 ? 'Good morning' : localHour.value < 18 ? 'Good afternoon' : 'Good evening',
+)
+let greetingInterval: ReturnType<typeof setInterval> | undefined
+
+function refreshGreeting() {
+  localHour.value = new Date().getHours()
+}
 
 const paused = computed(() => snapshot.value?.phase === 'paused')
 
@@ -66,6 +75,10 @@ function showSection(id: string) {
 }
 
 onMounted(() => {
+  refreshGreeting()
+  greetingInterval = setInterval(refreshGreeting, 60_000)
+  window.addEventListener('focus', refreshGreeting)
+  document.addEventListener('visibilitychange', refreshGreeting)
   const stored = localStorage.getItem('irys:appearance')
   const preferred: Appearance =
     stored === 'dark' || stored === 'light'
@@ -74,6 +87,12 @@ onMounted(() => {
         ? 'dark'
         : 'light'
   setAppearance(preferred)
+})
+
+onUnmounted(() => {
+  clearInterval(greetingInterval)
+  window.removeEventListener('focus', refreshGreeting)
+  document.removeEventListener('visibilitychange', refreshGreeting)
 })
 </script>
 
@@ -120,7 +139,7 @@ onMounted(() => {
       <main class="settings-content">
         <section id="overview" class="overview-section">
           <p class="breadcrumb">IRYS / Overview</p>
-          <h1>Good afternoon</h1>
+          <h1>{{ greeting }}</h1>
           <p class="intro">Your eye-break routine is ready when you are. Make it fit your workday without leaving your desktop.</p>
 
           <div class="overview-grid">
