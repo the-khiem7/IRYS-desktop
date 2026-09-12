@@ -41,12 +41,12 @@ fi
 # esbuild/rolldown that cannot execute here.
 if [ ! -x node_modules/.bin/vite ]; then
   printf '\033[1;36m==> installing frontend dependencies\033[0m\n'
-  npm ci --no-fund --no-audit
+  bun install --frozen-lockfile
 fi
 
 # --bundles nsis: MSI needs WiX, which is Windows-only. NSIS is also the build
 # worth having, since it installs per-user and needs no admin.
-npx tauri build \
+bun run tauri build \
   --runner cargo-xwin \
   --target x86_64-pc-windows-msvc \
   --bundles nsis \

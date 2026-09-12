@@ -9,6 +9,11 @@
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit",
+    "check": "biome check .",
+    "check:write": "biome check --write .",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
     "tauri": "tauri",
     "app": "tauri dev",
     "app:build": "tauri build",
@@ -24,6 +29,7 @@
     "vue": "3.5.42"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.5.13",
     "@tauri-apps/cli": "2.11.4",
     "@types/node": "24.13.3",
     "@vitejs/plugin-vue": "6.0.8",

@@ -24,16 +24,17 @@ run() {
 # node_modules and dist live in named volumes, so they start empty on a fresh
 # checkout. The host's copies are deliberately not shared: node_modules holds
 # Windows binaries for esbuild/rolldown that cannot execute here.
-if [ ! -x node_modules/.bin/vite ]; then
+if [ ! -x node_modules/.bin/vite ] || [ ! -x node_modules/.bin/biome ]; then
   printf '\033[1;36m==> installing frontend dependencies\033[0m\n'
-  npm ci --no-fund --no-audit || exit 1
+  bun install --frozen-lockfile || exit 1
 fi
 
 WORKDIR=/app
-run "vue-tsc --noEmit" npx vue-tsc --noEmit
+run "biome check"       bun run check
+run "vue-tsc --noEmit"  bun run typecheck
 # Must succeed before the Rust gates: tauri-build errors out if frontendDist
 # does not exist, so a missing dist/ would look like a Rust failure.
-run "vite build"       npx vite build
+run "vite build"        bun run build
 
 WORKDIR=/app/src-tauri
 # All three run even if an earlier one fails, so one round-trip surfaces every

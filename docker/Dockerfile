@@ -49,6 +49,9 @@ COPY --from=node:24-bookworm-slim /usr/local/lib/node_modules /usr/local/lib/nod
 RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
     && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
 
+# Keep local Docker verification on the same package manager and lockfile as CI.
+COPY --from=oven/bun:1.3.14 /usr/local/bin/bun /usr/local/bin/bun
+
 RUN rustup component add rustfmt clippy \
     && rustup target add x86_64-pc-windows-msvc
 
