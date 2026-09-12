@@ -104,6 +104,7 @@ Requirements: **Windows 10 or 11**. The Edge WebView2 runtime already ships with
 
 | File | How to use |
 |---|---|
+| Arch Linux | `yay -S irys-bin` |
 | `Irys_x.y.z_amd64.AppImage` | `chmod +x` then run - works on most distros, including Arch / Hyprland |
 | `Irys_x.y.z_amd64.deb` | Debian / Ubuntu: `sudo apt install ./Irys_*.deb` |
 

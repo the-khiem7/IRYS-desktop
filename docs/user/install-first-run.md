@@ -10,7 +10,8 @@ editUrl: https://github.com/the-khiem7/IRYS-desktop/edit/main/docs/user/install-
 Download the newest package from [GitHub Releases](https://github.com/the-khiem7/IRYS-desktop/releases):
 
 - **Windows:** use the NSIS `.exe` for a per-user install, or the `.msi` when your environment prefers MSI packages.
-- **Linux:** use the `.deb` package on Debian-based distributions or the `.AppImage` on other supported desktops.
+- **Arch Linux:** install the maintained binary package with `yay -S irys-bin`.
+- **Other Linux distributions:** use the `.deb` package on Debian-based distributions or the `.AppImage` elsewhere.
 
 Windows may show a SmartScreen warning because the installer is not code-signed. Confirm that the download came from the IRYS GitHub releases page before continuing.
 
