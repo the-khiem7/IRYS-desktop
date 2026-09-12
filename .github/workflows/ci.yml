@@ -28,15 +28,19 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24
-          cache: npm
+          package-manager-cache: false
 
-      - run: npm ci
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+
+      - run: bun install --frozen-lockfile
 
       - name: Type-check
-        run: npx vue-tsc --noEmit
+        run: bun run typecheck
 
       - name: Build
-        run: npx vite build
+        run: bun run build
 
   rust:
     name: Rust core - fmt, clippy, tests
@@ -76,7 +80,11 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24
-          cache: npm
+          package-manager-cache: false
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
 
       - uses: dtolnay/rust-toolchain@stable
 
@@ -84,13 +92,13 @@ jobs:
         with:
           workspaces: src-tauri
 
-      - run: npm ci
+      - run: bun install --frozen-lockfile
 
       # Runs the frontend build via beforeBuildCommand, then compiles and
       # bundles. Unsigned: Windows SmartScreen will warn on first run, which is
       # expected until there is a code-signing certificate.
       - name: Build installers
-        run: npx tauri build --bundles msi,nsis
+        run: bun run tauri build --bundles msi,nsis
 
       - uses: actions/upload-artifact@v7
         with:
@@ -121,7 +129,11 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24
-          cache: npm
+          package-manager-cache: false
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
 
       - uses: dtolnay/rust-toolchain@stable
 
@@ -129,10 +141,10 @@ jobs:
         with:
           workspaces: src-tauri
 
-      - run: npm ci
+      - run: bun install --frozen-lockfile
 
       - name: Build packages
-        run: npx tauri build --bundles deb,appimage
+        run: bun run tauri build --bundles deb,appimage
 
       - uses: actions/upload-artifact@v7
         with:
