@@ -3,6 +3,9 @@ node_modules/
 
 # frontend build
 dist/
+docs-site/dist/
+docs-site/.astro/
+.astro/
 
 # rust / tauri build
 src-tauri/target/

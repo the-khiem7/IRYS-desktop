@@ -1,4 +1,8 @@
 ---
+title: Decisions and open questions
+description: Verified claims, unresolved platform questions, and the decisions that shaped IRYS.
+slug: contributors/decisions
+editUrl: https://github.com/the-khiem7/IRYS-desktop/edit/main/docs/baseline/irys-desktop-app/irys-desktop-app.hallucination.md
 baseline_schema: "2.0"
 pack: "irys-desktop-app"
 document: "hallucination"
@@ -6,8 +10,6 @@ status: "active"
 updated: "2026-08-24"
 code_ref: "f0b78f0"
 ---
-
-# Open questions and closed decisions
 
 ## Now verified (was unverified)
 

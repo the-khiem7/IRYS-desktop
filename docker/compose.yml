@@ -10,7 +10,7 @@
 # directories are deliberately overlaid with volumes instead:
 #
 #   node_modules  the host's copy holds Windows binaries that cannot run here
-#   dist          keeps container and host frontend builds from fighting
+#   build output  keeps container and host frontend/docs builds from fighting
 #   /build/*      cargo, target and the Windows SDK cache, kept away from the
 #                 host's src-tauri/target, which belongs to a different toolchain
 
@@ -24,6 +24,8 @@ x-toolchain: &toolchain
     - ..:/app
     - node-modules:/app/node_modules
     - frontend-dist:/app/dist
+    - docs-site-dist:/app/docs-site/dist
+    - docs-site-astro:/app/docs-site/.astro
     - cargo-registry:/build/cargo
     - cargo-target:/build/target
     - xwin-cache:/build/xwin
@@ -53,6 +55,8 @@ services:
 volumes:
   node-modules:
   frontend-dist:
+  docs-site-dist:
+  docs-site-astro:
   cargo-registry:
   cargo-target:
   xwin-cache:

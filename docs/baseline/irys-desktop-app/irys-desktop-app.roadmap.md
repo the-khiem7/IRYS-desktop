@@ -1,4 +1,8 @@
 ---
+title: Roadmap
+description: Completed phases, dependencies, resolved implementation issues, and remaining IRYS work.
+slug: contributors/roadmap
+editUrl: https://github.com/the-khiem7/IRYS-desktop/edit/main/docs/baseline/irys-desktop-app/irys-desktop-app.roadmap.md
 baseline_schema: "2.0"
 pack: "irys-desktop-app"
 document: "roadmap"
@@ -6,8 +10,6 @@ status: "active"
 updated: "2026-08-24"
 code_ref: "f0b78f0"
 ---
-
-# Roadmap
 
 **v0.1.2 is released** - `v0.1.0`, `v0.1.1` and `v0.1.2` have each published from a green Windows build with no manual release step. `v0.1.2` is the first tag whose GitHub release was checked directly (via the public API, not just source inspection) and carries all 4 real assets: NSIS `.exe`, `.msi`, `.deb`, `.AppImage`. It bundles the Phase 15 WinUI 3 UI (`7bb879b`) and the `main.rs` Windows-subsystem fix (`1e735a5`); the user has now completed its Windows desktop acceptance. The temporary design briefs were removed after acceptance in `f0b78f0`.
 

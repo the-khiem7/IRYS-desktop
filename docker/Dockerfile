@@ -46,6 +46,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # nodejs is far too old for Vite 8. Both images are bookworm, so glibc matches.
 COPY --from=node:24-bookworm-slim /usr/local/bin/node /usr/local/bin/node
 COPY --from=node:24-bookworm-slim /usr/local/lib/node_modules /usr/local/lib/node_modules
+COPY --from=oven/bun:1.3.14 /usr/local/bin/bun /usr/local/bin/bun
 RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
     && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
 
@@ -69,7 +70,8 @@ ENV XWIN_ACCEPT_LICENSE=1
 ENV CARGO_TARGET_DIR=/build/target \
     CARGO_HOME=/build/cargo \
     XWIN_CACHE_DIR=/build/xwin \
-    XDG_CACHE_HOME=/build/cache
+    XDG_CACHE_HOME=/build/cache \
+    ASTRO_TELEMETRY_DISABLED=1
 
 WORKDIR /app
 

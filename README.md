@@ -139,7 +139,7 @@ npm run build:linux     # deb + AppImage (run on a Linux host)
 npm run build:windows   # cross-compile a Windows installer into ./out
 ```
 
-Architecture, the IPC contract, build topology and the full development setup are in [docs/baseline/irys-desktop-app/](docs/baseline/irys-desktop-app/); the original design is in [PLAN.md](PLAN.md).
+The [published documentation](https://the-khiem7.github.io/IRYS-desktop/) includes the user guide, architecture, IPC contract, build topology, and development setup. Its canonical Markdown remains in [docs/](docs/), with the contributor baseline in [docs/baseline/irys-desktop-app/](docs/baseline/irys-desktop-app/); the original design is in [PLAN.md](PLAN.md).
 
 ---
 

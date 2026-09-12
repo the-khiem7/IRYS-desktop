@@ -1,4 +1,8 @@
 ---
+title: Architecture and execution flow
+description: How the Rust scheduler, Tauri boundary, Vue surfaces, platform code, and verification topology fit together.
+slug: contributors/architecture
+editUrl: https://github.com/the-khiem7/IRYS-desktop/edit/main/docs/baseline/irys-desktop-app/irys-desktop-app.sourcecode.md
 baseline_schema: "2.0"
 pack: "irys-desktop-app"
 document: "sourcecode"
@@ -6,8 +10,6 @@ status: "active"
 updated: "2026-08-24"
 code_ref: "f0b78f0"
 ---
-
-# Architecture and execution flow
 
 ## The one idea that shapes everything
 
