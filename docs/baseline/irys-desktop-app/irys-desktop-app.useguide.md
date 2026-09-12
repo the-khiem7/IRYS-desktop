@@ -1,4 +1,8 @@
 ---
+title: Contracts and procedures
+description: IPC contracts, settings constraints, local verification, release steps, and contributor conventions.
+slug: contributors/contracts
+editUrl: https://github.com/the-khiem7/IRYS-desktop/edit/main/docs/baseline/irys-desktop-app/irys-desktop-app.useguide.md
 baseline_schema: "2.0"
 pack: "irys-desktop-app"
 document: "useguide"
@@ -6,8 +10,6 @@ status: "active"
 updated: "2026-08-24"
 code_ref: "f0b78f0"
 ---
-
-# Contracts and procedures
 
 ## IPC contract - the Rust/Vue boundary
 

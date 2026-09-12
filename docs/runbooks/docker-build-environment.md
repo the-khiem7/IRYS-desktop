@@ -1,4 +1,9 @@
-# Docker build environment and Rancher / WSL disk runbook
+---
+title: Docker build environment and Rancher / WSL disk runbook
+description: Keep container build storage bounded and recover the Windows Rancher Desktop and WSL environment safely.
+slug: runbooks/docker-build-environment
+editUrl: https://github.com/the-khiem7/IRYS-desktop/edit/main/docs/runbooks/docker-build-environment.md
+---
 
 ## Purpose
 

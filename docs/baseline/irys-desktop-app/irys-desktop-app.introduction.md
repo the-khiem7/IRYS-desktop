@@ -1,4 +1,8 @@
 ---
+title: Project scope and current truth
+description: The verified product scope, implementation status, runtime evidence, and constraints for IRYS.
+slug: contributors/overview
+editUrl: https://github.com/the-khiem7/IRYS-desktop/edit/main/docs/baseline/irys-desktop-app/irys-desktop-app.introduction.md
 baseline_schema: "2.0"
 pack: "irys-desktop-app"
 document: "introduction"
@@ -6,8 +10,6 @@ status: "active"
 updated: "2026-08-24"
 code_ref: "f0b78f0"
 ---
-
-# Irys - scope and current truth
 
 ## Scope
 
