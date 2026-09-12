@@ -36,7 +36,7 @@ function insideSquircle(x, y, half, radius) {
  */
 function insideAlmond(u, v) {
   if (Math.abs(u) >= 1) return false
-  const halfHeight = 0.62 * Math.pow(1 - u * u, 0.72)
+  const halfHeight = 0.62 * (1 - u * u) ** 0.72
   return Math.abs(v) <= halfHeight
 }
 
@@ -169,6 +169,4 @@ const png = Buffer.concat([
 ])
 
 writeFileSync('icon-source.png', png)
-console.log(
-  `wrote icon-source.png (${SIZE}x${SIZE}, ${(png.length / 1024).toFixed(1)} KiB)`,
-)
+console.log(`wrote icon-source.png (${SIZE}x${SIZE}, ${(png.length / 1024).toFixed(1)} KiB)`)
