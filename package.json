@@ -35,7 +35,7 @@
     "@astrojs/starlight": "0.42.0",
     "@biomejs/biome": "2.5.13",
     "@tauri-apps/cli": "2.11.4",
-    "@types/node": "24.13.3",
+    "@types/node": "24.13.4",
     "@vitejs/plugin-vue": "6.0.8",
     "astro": "7.3.2",
     "astro-mermaid": "2.1.0",
