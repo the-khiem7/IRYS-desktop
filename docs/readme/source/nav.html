@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>IRYS README navigation buttons</title>
+<!-- Source of ../nav-*.webp and their -dark twins (image buttons under the banner).
+     Render from the repository root with:
+     uv run --no-project --with pillow python <scratch>/render_all.py nav.html
+     or, without the lossy step: uvx --from playwright --with pillow python -I <doorway-illustrate skill dir>/scripts/render.py docs/readme/source/nav.html --root docs/readme --out docs/readme
+     Each button is 64 CSS px high (128 px in the image); the README shows them at height 34.
+     Fonts are system fonts (Segoe UI Variable): render on Windows 11. -->
+<script src="shared.js"></script>
+<link rel="stylesheet" href="shared.css">
+<style>
+.item.btn { height: 64px; display: flex; align-items: center; justify-content: center; gap: 12px;
+  font: 650 23px "Segoe UI Variable Display", "Segoe UI", sans-serif; letter-spacing: -0.005em; color: var(--ink);
+  background: linear-gradient(180deg, var(--glass-hi), color-mix(in srgb, var(--bg2) 55%, var(--bg0)));
+  --cardline: #a9cdea; }
+html[data-theme="dark"] .item.btn { background: linear-gradient(180deg, #1b3350, #0f1f33); --cardline: #2f5a80; }
+.item.btn svg { width: 24px; height: 24px; flex: none; fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.item.btn.on { background: linear-gradient(135deg, var(--accent2), var(--accent)); color: var(--on); --cardline: var(--accent); }
+html[data-theme="dark"] .item.btn.on { background: linear-gradient(135deg, var(--accent2), var(--accent)); }
+.item.btn.on svg { stroke: var(--on); }
+</style>
+</head>
+<body>
+<div class="sheet">
+<div class="item btn on" id="nav-download" style="width:210px"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Download</div>
+<div class="item btn" id="nav-how" style="width:236px"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v4h-4"/></svg>How it works</div>
+<div class="item btn" id="nav-features" style="width:200px"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>Features</div>
+<div class="item btn" id="nav-install" style="width:182px"><svg viewBox="0 0 24 24"><path d="M4 8l8-4 8 4v8l-8 4-8-4zM4 8l8 4 8-4M12 12v8"/></svg>Install</div>
+<div class="item btn" id="nav-privacy" style="width:184px"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6zM9 12l2 2 4-4"/></svg>Privacy</div>
+<div class="item btn" id="nav-dev" style="width:222px"><svg viewBox="0 0 24 24"><path d="M9 8l-4 4 4 4M15 8l4 4-4 4"/></svg>Developers</div>
+</div>
+</body>
+</html>

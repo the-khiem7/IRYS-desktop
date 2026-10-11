@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>IRYS one cycle</title>
+<!-- Source of ../cycle.webp and ../cycle-dark.webp. Render from the repository root with:
+     uv run --no-project --with pillow python <scratch>/render_all.py cycle.html
+     or, without the lossy step: uvx --from playwright --with pillow python -I <doorway-illustrate skill dir>/scripts/render.py docs/readme/source/cycle.html --root docs/readme --out docs/readme --max-kb 700
+     The item is 1200 CSS px wide, so 2400 px in the image. Fonts are system fonts (Segoe UI Variable, Cascadia Mono): render on Windows 11.
+     The break arc is drawn wider than 30 seconds of a 30 minute cycle would be; the figure says so. Checked against src-tauri/src/core/mod.rs (begin_break, skip, snooze, PREWARN_LEAD_SECS). -->
+<script src="shared.js"></script>
+<link rel="stylesheet" href="shared.css">
+<style>
+#cycle { height: 650px; }
+.title { position: absolute; left: 64px; top: 44px; }
+.stage { position: absolute; left: 0; top: 0; width: 600px; height: 650px; }
+.steps { position: absolute; left: 600px; top: 80px; width: 536px; display: flex; flex-direction: column; gap: 12px; }
+.step { display: flex; align-items: center; gap: 18px; padding: 15px 22px 16px 16px; }
+.step .ds { margin-top: 2px; font-size: 17px; }
+.dot { flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font: 650 19px "Segoe UI Variable Display", "Segoe UI", sans-serif;
+  color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); border: 1.5px solid color-mix(in srgb, var(--accent) 55%, transparent); }
+.dot.hot { color: var(--on); background: linear-gradient(135deg, var(--accent2), var(--accent)); border-color: transparent; box-shadow: 0 0 22px -2px var(--glow); }
+.out { position: absolute; left: 600px; top: 500px; width: 536px; padding: 16px 22px 18px; }
+.out .eyebrow { margin-bottom: 10px; }
+.out .row { display: flex; gap: 14px; align-items: baseline; }
+.out .row + .row { margin-top: 8px; }
+.out .ds { color: var(--ink); font-size: 18px; }
+.note { position: absolute; left: 0; width: 600px; top: 594px; text-align: center; font-size: 15px; color: var(--faint); }
+.core { position: absolute; left: 252px; top: 282px; width: 96px; text-align: center; color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="sheet">
+<div class="item" id="cycle">
+  <div class="scenery" style="--cx: 300px; --cy: 330px"></div>
+  <div class="title eyebrow">One cycle, on repeat</div>
+
+  <svg class="stage" viewBox="0 0 600 600" aria-hidden="true">
+    <g id="ring" fill="none" stroke-linecap="round"></g>
+  </svg>
+  <div class="core"><svg width="96" height="96" style="color:var(--accent)"><use href="#eye"/></svg></div>
+  <div class="note">The break arc is drawn wider than it is, so you can see it.</div>
+
+  <div class="steps">
+    <div class="glass step"><div class="dot">1</div><div><div class="nm">Work, 30 minutes</div><div class="ds">Irys counts down in the tray. Its tooltip shows the time left.</div></div></div>
+    <div class="glass step"><div class="dot">2</div><div><div class="nm">Heads-up, 30 seconds before</div><div class="ds">An optional notification, on by default.</div></div></div>
+    <div class="glass step lit"><div class="dot hot">3</div><div><div class="nm">Break, 30 seconds</div><div class="ds">A ring counts down while you look about 30 feet away.</div></div></div>
+    <div class="glass step"><div class="dot">4</div><div><div class="nm">Fresh start</div><div class="ds">The work timer begins again from the top.</div></div></div>
+  </div>
+
+  <div class="glass out">
+    <div class="eyebrow">Leave a break early</div>
+    <div class="row"><span class="chip">Esc or Skip</span><span class="ds">Starts a full new work interval.</span></div>
+    <div class="row"><span class="chip">Snooze</span><span class="ds">The break comes back in 5 minutes.</span></div>
+  </div>
+</div>
+</div>
+<script>
+// Geometry of the cycle ring. Angles run clockwise from 12 o'clock.
+const cx = 300, cy = 330, R = 168;
+const pt = (deg, r = R) => [cx + r * Math.sin(deg * Math.PI / 180), cy - r * Math.cos(deg * Math.PI / 180)];
+const arc = (a, b, r = R) => { const [x1, y1] = pt(a, r), [x2, y2] = pt(b, r); return `M${x1.toFixed(1)} ${y1.toFixed(1)}A${r} ${r} 0 ${b - a > 180 ? 1 : 0} 1 ${x2.toFixed(1)} ${y2.toFixed(1)}`; };
+const g = document.getElementById('ring');
+const chev = (deg) => { const [x, y] = pt(deg); return `<path d="M-6 -8L7 0L-6 8z" fill="var(--bg0)" opacity="0.85" transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${deg})"/>`; };
+const marker = (deg, label, hot) => { const [x, y] = pt(deg);
+  return `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)})"><circle r="21" fill="var(--bg0)" stroke="${hot ? 'none' : 'var(--accent)'}" stroke-width="2"/>${hot ? '<circle r="21" fill="url(#ringGrad)"/>' : ''}<text text-anchor="middle" dy="7" font-size="20" font-weight="650" font-family="Segoe UI Variable Display, Segoe UI" fill="${hot ? 'var(--on)' : 'var(--accent)'}">${label}</text></g>`; };
+g.innerHTML = `
+  <circle cx="${cx}" cy="${cy}" r="${R + 48}" stroke="var(--faint)" stroke-width="10" stroke-linecap="butt" stroke-dasharray="1.6 10.3" opacity="0.5"/>
+  <circle cx="${cx}" cy="${cy}" r="${R}" stroke="var(--track)" stroke-width="26"/>
+  <path d="${arc(12, 314)}" stroke="url(#ringGrad)" stroke-width="26" opacity="0.92" class="glowline"/>
+  <path d="${arc(324, 352)}" stroke="var(--accent2)" stroke-width="30" class="glowline"/>
+  ${chev(78)}${chev(222)}${marker(150, '1')}${marker(296, '2')}${marker(338, '3', true)}${marker(1, '4')}`;
+</script>
+</body>
+</html>

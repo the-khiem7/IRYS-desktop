@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>IRYS architecture</title>
+<!-- Source of ../arch.webp and ../arch-dark.webp. Render from the repository root with:
+     uv run --no-project --with pillow python <scratch>/render_all.py arch.html
+     or, without the lossy step: uvx --from playwright --with pillow python -I <doorway-illustrate skill dir>/scripts/render.py docs/readme/source/arch.html --root docs/readme --out docs/readme --max-kb 700
+     The item is 1200 CSS px wide, so 2400 px in the image. Fonts are system fonts (Segoe UI Variable, Cascadia Mono): render on Windows 11.
+     The two window thumbnails are ../settings.webp and ../break-overlay.webp, so those files must exist when this page is rendered.
+     Checked against src-tauri/src/scheduler.rs (one second interval, dispatch), src-tauri/src/effects.rs (tick event, tray, windows, notification), src-tauri/src/core/mod.rs (imports serde only) and src-tauri/src/platform/. -->
+<script src="shared.js"></script>
+<link rel="stylesheet" href="shared.css">
+<style>
+#arch { height: 640px; }
+.title { position: absolute; left: 64px; top: 40px; }
+.col-h { position: absolute; font: 650 15px "Segoe UI Variable Text", "Segoe UI", sans-serif; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+.probe { position: absolute; left: 64px; width: 192px; height: 96px; padding: 14px 16px; }
+.probe .nm { font-size: 19px; white-space: nowrap; }
+.probe .ds { font-size: 16px; margin-top: 2px; }
+.probe svg { position: absolute; right: 14px; bottom: 14px; width: 24px; height: 24px; fill: none; stroke: var(--accent); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; opacity: 0.9; }
+.rust { position: absolute; left: 300px; top: 100px; width: 400px; height: 480px; padding: 18px 20px; }
+.rust .col-h { position: static; color: var(--accent); }
+.stage { position: absolute; left: 20px; right: 20px; height: 88px; padding: 0 20px; display: flex; flex-direction: column; justify-content: center; border-radius: 14px; }
+.stage .nm { font-size: 22px; }
+.stage .ds { font-size: 17px; margin-top: 2px; }
+.stage.plain { background: color-mix(in srgb, var(--ink) 5%, transparent); border: 1.5px solid var(--glass-line); }
+.vue { position: absolute; left: 850px; top: 100px; width: 286px; height: 480px; padding: 18px 18px; }
+.vue .col-h { position: static; }
+.win { position: absolute; left: 18px; right: 18px; }
+.win img { display: block; width: 100%; border-radius: 10px; box-shadow: 0 10px 26px -10px rgba(0, 0, 0, 0.55); }
+.win .cap { margin-top: 8px; font-size: 16px; line-height: 1.3; color: var(--muted); }
+.win .cap b { color: var(--ink); font-weight: 650; }
+.flow { position: absolute; width: 150px; text-align: center; }
+.flow .lbl { display: block; font-size: 15px; letter-spacing: 0; text-transform: none; margin: 0 0 6px; }
+.flow svg { display: block; width: 150px; height: 14px; overflow: visible; }
+</style>
+</head>
+<body>
+<div class="sheet">
+<div class="item" id="arch">
+  <div class="scenery" style="--cx: 500px; --cy: 305px"></div>
+  <div class="title eyebrow">The clock lives in Rust, not in a window</div>
+
+  <div class="col-h" style="left: 64px; top: 112px;">Your computer</div>
+  <div class="glass probe" style="top: 160px;"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><div class="nm">Idle time</div><div class="ds">Windows only</div></div>
+  <div class="glass probe" style="top: 276px;"><svg viewBox="0 0 24 24"><path d="M4 9V5.5A1.5 1.5 0 0 1 5.5 4H9M15 4h3.5A1.5 1.5 0 0 1 20 5.5V9M20 15v3.5a1.5 1.5 0 0 1-1.5 1.5H15M9 20H5.5A1.5 1.5 0 0 1 4 18.5V15"/></svg><div class="nm">Full-screen check</div><div class="ds">Windows only</div></div>
+
+  <svg class="abs" style="left:0;top:0" width="1200" height="640" viewBox="0 0 1200 640" aria-hidden="true">
+    <g fill="none" stroke="url(#ringGrad)" stroke-width="3" stroke-linecap="round" class="glowline">
+      <path d="M256 208C280 208 282 220 298 220"/><path d="M256 324C280 324 282 228 298 228"/>
+    </g>
+    <path d="M296 216l12 8-12 8z" fill="var(--accent)"/>
+  </svg>
+
+  <div class="glass lit rust">
+    <div class="col-h">Rust owns clock and state</div>
+    <div class="stage plain" style="top: 80px;"><div class="nm">Scheduler</div><div class="ds">Once a second, on real elapsed time.</div></div>
+    <div class="stage glass solid" style="top: 208px;"><div class="nm">State machine</div><div class="ds">No clock, no I/O, no Tauri types in it.</div></div>
+    <div class="stage plain" style="top: 336px;"><div class="nm">Effects</div><div class="ds">Tray tooltip, windows, notification.</div></div>
+    <svg class="abs" style="left:0;top:0" width="400" height="480" viewBox="0 0 400 480" aria-hidden="true">
+      <g fill="var(--accent)"><path d="M192 190l8 12 8-12z"/><path d="M192 318l8 12 8-12z"/></g>
+      <g stroke="var(--accent)" stroke-width="3" stroke-linecap="round"><path d="M200 170v22M200 298v22"/></g>
+    </svg>
+  </div>
+
+  <div class="flow" style="left: 700px; top: 190px;"><span class="lbl">commands</span>
+    <svg viewBox="0 0 150 14"><path d="M150 7H12" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" fill="none" class="glowline"/><path d="M14 0L0 7l14 7z" fill="var(--accent)"/></svg></div>
+  <div class="flow" style="left: 700px; top: 446px;"><span class="lbl">state, each second</span>
+    <svg viewBox="0 0 150 14"><path d="M0 7h138" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" fill="none" class="glowline"/><path d="M136 0l14 7-14 7z" fill="var(--accent)"/></svg></div>
+
+  <div class="glass vue">
+    <div class="col-h">Vue only renders</div>
+    <div class="win" style="top: 62px;"><img src="../settings.webp" alt=""><div class="cap"><b>Settings window</b><br>Pause, break now, preferences</div></div>
+    <div class="win" style="top: 318px;"><img src="../break-overlay.webp" alt=""><div class="cap"><b>Break window</b><br>Ring, Skip, Snooze, Esc</div></div>
+  </div>
+</div>
+</div>
+</body>
+</html>

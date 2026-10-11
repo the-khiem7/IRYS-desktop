@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>IRYS two reminder styles</title>
+<!-- Source of ../styles.webp and ../styles-dark.webp. Render from the repository root with:
+     uv run --no-project --with pillow python <scratch>/render_all.py styles.html
+     or, without the lossy step: uvx --from playwright --with pillow python -I <doorway-illustrate skill dir>/scripts/render.py docs/readme/source/styles.html --root docs/readme --out docs/readme --max-kb 700
+     The item is 1200 CSS px wide, so 2400 px in the image. Fonts are system fonts (Segoe UI Variable, Cascadia Mono): render on Windows 11.
+     The reminder images are ../break-overlay.webp and ../break-corner.webp (screenshots of the real Vue break window); the screens around them are schematic.
+     Style names and placement checked against BreakStyle in src-tauri/src/core/mod.rs and src-tauri/src/windows_mgr.rs. -->
+<script src="shared.js"></script>
+<link rel="stylesheet" href="shared.css">
+<style>
+#styles { height: 560px; }
+.title { position: absolute; left: 64px; top: 44px; }
+.panel { position: absolute; top: 84px; width: 524px; height: 424px; padding: 20px 22px; }
+.panel.a { left: 64px; } .panel.b { left: 612px; }
+.head { display: flex; align-items: center; gap: 12px; }
+.head .nm { font-size: 24px; }
+.screen { position: relative; margin-top: 16px; width: 480px; height: 270px; border-radius: 12px; overflow: hidden; border: 2px solid var(--glass-line); box-shadow: 0 14px 30px -16px rgba(0, 0, 0, 0.6); }
+.screen.full { background: radial-gradient(ellipse at 46% 38%, #183a59 0%, #102437 35%, #0e141d 76%); }
+.screen.full img { position: absolute; left: 0; top: 0; width: 100%; -webkit-mask-image: linear-gradient(#000 82%, transparent); mask-image: linear-gradient(#000 82%, transparent); }
+.screen.corner { background: linear-gradient(160deg, color-mix(in srgb, var(--bg2) 80%, #fff) 0%, var(--bg1) 100%); }
+html[data-theme="dark"] .screen.corner { background: linear-gradient(160deg, #1a3550 0%, #0e1b2a 100%); }
+.wf { position: absolute; border-radius: 8px; background: var(--glass-hi); border: 1.5px solid var(--glass-line); opacity: 0.95; }
+.wf i { position: absolute; left: 12px; right: 12px; height: 6px; border-radius: 3px; background: var(--track); }
+.wf i.t { top: 12px; height: 8px; width: 40%; right: auto; background: color-mix(in srgb, var(--accent) 45%, transparent); }
+.bar { position: absolute; left: 0; right: 0; bottom: 0; height: 18px; background: color-mix(in srgb, var(--ink) 14%, transparent); border-top: 1px solid var(--glass-line); }
+.bar i { position: absolute; top: 5px; width: 8px; height: 8px; border-radius: 2px; background: var(--faint); opacity: 0.7; }
+.toast { position: absolute; right: 12px; bottom: 28px; width: 190px; border-radius: 7px; box-shadow: 0 8px 22px -6px rgba(0, 0, 0, 0.7); }
+.cap { margin-top: 14px; font-size: 18px; line-height: 1.4; color: var(--muted); }
+.cap b { color: var(--ink); font-weight: 650; }
+</style>
+</head>
+<body>
+<div class="sheet">
+<div class="item" id="styles">
+  <div class="scenery" style="--cx: 600px; --cy: 300px"></div>
+  <div class="title eyebrow">Two ways to be reminded</div>
+
+  <div class="glass panel a">
+    <div class="head"><div class="nm">Full screen</div><span class="chip">Default</span></div>
+    <div class="screen full"><img src="../break-overlay.webp" alt=""></div>
+    <div class="cap"><b>Dims the screen.</b> Esc, Skip or Snooze always close it.</div>
+  </div>
+
+  <div class="glass panel b">
+    <div class="head"><div class="nm">Corner</div></div>
+    <div class="screen corner">
+      <div class="wf" style="left: 26px; top: 26px; width: 250px; height: 150px;"><i class="t"></i><i style="top: 44px; right: 60px;"></i><i style="top: 62px;"></i><i style="top: 80px; right: 90px;"></i><i style="top: 98px;"></i></div>
+      <div class="wf" style="left: 150px; top: 80px; width: 230px; height: 120px;"><i class="t"></i><i style="top: 44px;"></i><i style="top: 62px; right: 70px;"></i><i style="top: 80px;"></i></div>
+      <div class="bar"><i style="left: 12px"></i><i style="left: 28px"></i><i style="left: 44px"></i></div>
+      <img class="toast" src="../break-corner.webp" alt="">
+    </div>
+    <div class="cap"><b>A small card.</b> Your work stays visible and clickable.</div>
+  </div>
+</div>
+</div>
+</body>
+</html>

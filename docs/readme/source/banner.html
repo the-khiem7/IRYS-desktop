@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>IRYS banner</title>
+<!-- Source of ../banner.webp and ../banner-dark.webp. Render from the repository root with:
+     uvx --from playwright --with pillow python -I <doorway-illustrate skill dir>/scripts/render.py docs/readme/source/banner.html --root docs/readme --out docs/readme
+     The item is 1200 CSS px wide, so 2400 px in the image. Fonts are system fonts (Segoe UI Variable, Cascadia Mono): render on Windows 11.
+     The three rings are the rule made visible: the inner ring is the 30 seconds, the middle one the 30 feet, the outer one the 30 minutes. Arc lengths are decorative. -->
+<script src="shared.js"></script>
+<link rel="stylesheet" href="shared.css">
+<style>
+#banner { height: 420px; }
+.copy { position: absolute; left: 64px; top: 0; bottom: 0; width: 560px; display: flex; flex-direction: column; justify-content: center; }
+.copy .eyebrow { margin-bottom: 6px; }
+.name { font: 650 124px/1 "Segoe UI Variable Display", "Segoe UI", sans-serif; letter-spacing: 0.07em; margin-left: -4px; }
+.tag { margin-top: 14px; font-size: 31px; font-weight: 600; letter-spacing: -0.01em; }
+.rule { margin-top: 12px; font-size: 21px; line-height: 1.45; color: var(--muted); max-width: 470px; text-wrap: balance; }
+.hero { position: absolute; left: 0; top: 0; width: 1200px; height: 420px; }
+.pill { position: absolute; transform: translate(-50%, -50%); display: flex; align-items: baseline; gap: 6px; padding: 7px 16px 8px; border-radius: 999px; }
+.pill b { font: 650 30px/1 "Segoe UI Variable Display", "Segoe UI", sans-serif; letter-spacing: -0.03em;
+  background: linear-gradient(180deg, var(--accent2), var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.pill span { font-weight: 650; font-size: 17px; color: var(--ink); }
+</style>
+</head>
+<body>
+<div class="sheet">
+<div class="item" id="banner">
+  <div class="scenery" style="--cx: 900px; --cy: 210px"></div>
+
+  <svg class="hero" viewBox="0 0 1200 420" aria-hidden="true">
+    <g transform="translate(900 210)" fill="none" stroke-linecap="round">
+      <!-- bezel ticks -->
+      <circle r="238" stroke-width="12" stroke-linecap="butt" stroke-dasharray="1.6 10.4" style="stroke:var(--faint)" opacity="0.55"/>
+      <!-- tracks -->
+      <circle r="214" stroke="var(--track)" stroke-width="5"/>
+      <circle r="150" stroke="var(--track)" stroke-width="5"/>
+      <circle r="92"  stroke="var(--track)" stroke-width="7"/>
+      <!-- lit arcs, starting at 12 o'clock -->
+      <g transform="rotate(-90)" class="glowline">
+        <circle r="214" stroke="url(#ringGrad)" stroke-width="5" stroke-dasharray="1008 1345" opacity="0.9"/>
+        <circle r="150" stroke="url(#ringGrad)" stroke-width="5" stroke-dasharray="620 943" opacity="0.95"/>
+        <circle r="92"  stroke="url(#ringGrad)" stroke-width="7" stroke-dasharray="450 578"/>
+      </g>
+      <!-- end nodes -->
+      <g class="glowline" fill="var(--accent2)" stroke="none">
+        <circle cx="-214" cy="0" r="8"/>
+        <circle cx="-125.5" cy="82" r="7"/>
+        <circle cx="-90.5" cy="-16.5" r="8"/>
+      </g>
+      <!-- the eye, with a soft halo -->
+      <circle r="62" fill="var(--accent)" opacity="0.10" stroke="none"/>
+      <g style="color:var(--accent)"><use href="#eye" x="-72" y="-72" width="144" height="144"/></g>
+    </g>
+  </svg>
+
+  <div class="pill glass" style="left: 1037px; top: 46px;"><b>30</b><span>minutes</span></div>
+  <div class="pill glass" style="left: 825px; top: 80px;"><b>30</b><span>feet</span></div>
+  <div class="pill glass lit" style="left: 900px; top: 302px;"><b>30</b><span>seconds</span></div>
+
+  <div class="copy">
+    <div class="eyebrow">The 30-30-30 rule, kept for you</div>
+    <div class="name glowtext">IRYS</div>
+    <div class="tag">Your companion for healthier eyes</div>
+    <div class="rule">Every 30&nbsp;minutes, look 30&nbsp;feet away, for 30&nbsp;seconds.</div>
+  </div>
+</div>
+</div>
+</body>
+</html>

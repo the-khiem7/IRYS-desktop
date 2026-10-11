@@ -1,0 +1,85 @@
+/* Shared look for the README illustrations: a luminous "iris at night" language taken from the
+   break window (deep navy radial, #72bfff glow, concentric rings that read as looking into the
+   distance) and the Windows blue of src-vue/styles/theme.css. Dark is the native mood; light is
+   the same scene in daylight.
+   Contract with render.py: every .item has a unique id and sits inside .sheet; .item is zoomed 2x so
+   a 1200 CSS px item becomes a 2400 px image; theming only through html[data-theme="dark"], set by
+   shared.js from ?theme=; --cardline is the border colour of the finished image. */
+
+:root {
+  --bg0: #f6fafe; --bg1: #e8f2fb; --bg2: #cfe4f7;
+  --ink: #0b2033; --muted: #4a6580; --faint: #7d93a8;
+  --accent: #0067c0; --accent2: #2f9bf2; --accent-deep: #004f94;
+  --hot: #00a6ff;
+  --glass: rgba(255, 255, 255, 0.72); --glass-line: rgba(0, 103, 192, 0.18);
+  --glass-hi: rgba(255, 255, 255, 0.9);
+  --glow: rgba(0, 120, 212, 0.40); --ringline: rgba(0, 103, 192, 0.10);
+  --track: rgba(0, 103, 192, 0.14);
+  --shadow: 0 22px 44px -26px rgba(0, 70, 140, 0.45);
+  --on: #ffffff; --cardline: #b7d2ea;
+  --iris: #0078d4; --iris-glow: #c8efff; --iris-deep: #005a9e; --sclera: #f1f8fe;
+}
+html[data-theme="dark"] {
+  --bg0: #090f17; --bg1: #0d1b2b; --bg2: #17395a;
+  --ink: #f1f7fc; --muted: #a8bccd; --faint: #7890a5;
+  --accent: #72bfff; --accent2: #c8efff; --accent-deep: #1d75b5;
+  --hot: #8fd0ff;
+  --glass: rgba(255, 255, 255, 0.055); --glass-line: rgba(168, 199, 224, 0.22);
+  --glass-hi: rgba(255, 255, 255, 0.10);
+  --glow: rgba(114, 191, 255, 0.50); --ringline: rgba(168, 210, 245, 0.10);
+  --track: rgba(168, 210, 245, 0.16);
+  --shadow: 0 24px 50px -24px rgba(0, 0, 0, 0.8);
+  --on: #06263f; --cardline: #284661;
+  --iris: #78c6ff; --iris-glow: #e0f4ff; --iris-deep: #1d75b5; --sclera: #14202c;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #888; }
+.sheet { width: max-content; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+.item {
+  zoom: 2; position: relative; overflow: hidden; width: 1200px;
+  font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(900px 520px at 12% -10%, var(--bg2), transparent 70%),
+    radial-gradient(700px 420px at 100% 110%, color-mix(in srgb, var(--bg2) 70%, transparent), transparent 70%),
+    linear-gradient(180deg, var(--bg1), var(--bg0));
+}
+.disp { font-family: "Segoe UI Variable Display", "Segoe UI Variable Text", "Segoe UI", sans-serif; }
+.mono { font-family: "Cascadia Mono", Consolas, monospace; }
+.abs { position: absolute; }
+.fill { position: absolute; inset: 0; }
+
+/* concentric rings as scenery: set the centre with --cx / --cy on the element */
+.scenery { position: absolute; inset: 0; --cx: 80%; --cy: 50%;
+  background: repeating-radial-gradient(circle at var(--cx) var(--cy), transparent 0 47px, var(--ringline) 47px 48px);
+  -webkit-mask-image: radial-gradient(circle at var(--cx) var(--cy), #000 0%, transparent 62%);
+  mask-image: radial-gradient(circle at var(--cx) var(--cy), #000 0%, transparent 62%); }
+
+.glass { position: relative; border-radius: 18px; background: var(--glass); border: 1.5px solid var(--glass-line);
+  box-shadow: inset 0 1px 0 var(--glass-hi), var(--shadow); backdrop-filter: blur(14px); }
+.glass.lit { border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  box-shadow: inset 0 1px 0 var(--glass-hi), 0 0 0 1px color-mix(in srgb, var(--accent) 25%, transparent), 0 0 38px -6px var(--glow), var(--shadow); }
+.glass.solid { background: linear-gradient(135deg, var(--accent2), var(--accent)); border-color: transparent; color: var(--on);
+  box-shadow: 0 0 40px -6px var(--glow), 0 18px 36px -18px rgba(0, 40, 90, 0.6); }
+html[data-theme="dark"] .glass.solid { background: linear-gradient(135deg, var(--accent2), var(--accent)); }
+
+.eyebrow { font: 650 15px "Segoe UI Variable Text", "Segoe UI", sans-serif; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); }
+.nm { font: 650 23px/1.2 "Segoe UI Variable Display", "Segoe UI", sans-serif; letter-spacing: -0.01em; }
+.ds { font-size: 18px; line-height: 1.4; color: var(--muted); }
+.solid .nm, .solid .ds { color: var(--on); }
+.solid .ds { opacity: 0.85; }
+.lbl { font-weight: 650; font-size: 16px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.chip { display: inline-block; font-weight: 650; font-size: 15px; letter-spacing: 0.04em; padding: 3px 11px; border-radius: 999px;
+  color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); white-space: nowrap; }
+.file { font: 600 19px "Cascadia Mono", Consolas, monospace; color: var(--ink); }
+.glowtext { background: linear-gradient(180deg, var(--ink) 20%, var(--accent) 130%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* numerals: the big 30 */
+.num { font: 650 56px/1 "Segoe UI Variable Display", "Segoe UI", sans-serif; letter-spacing: -0.04em;
+  background: linear-gradient(180deg, var(--accent2), var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* svg helpers */
+svg { overflow: visible; }
+.glowline { filter: drop-shadow(0 0 7px var(--glow)); }
+.t-ink { fill: var(--ink); } .t-muted { fill: var(--muted); } .t-accent { fill: var(--accent); }

@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>IRYS reads the room</title>
+<!-- Source of ../room.webp and ../room-dark.webp. Render from the repository root with:
+     uv run --no-project --with pillow python <scratch>/render_all.py room.html
+     or, without the lossy step: uvx --from playwright --with pillow python -I <doorway-illustrate skill dir>/scripts/render.py docs/readme/source/room.html --root docs/readme --out docs/readme --max-kb 700
+     The item is 1200 CSS px wide, so 2400 px in the image. Fonts are system fonts (Segoe UI Variable, Cascadia Mono): render on Windows 11.
+     Order and conditions checked against Machine::tick in src-tauri/src/core/mod.rs; the Windows-only checks against src-tauri/src/platform/stub.rs. -->
+<script src="shared.js"></script>
+<link rel="stylesheet" href="shared.css">
+<style>
+#room { height: 830px; }
+.title { position: absolute; left: 64px; top: 44px; }
+.lines { position: absolute; inset: 0; width: 1200px; height: 830px; }
+.card { position: absolute; height: 112px; padding: 0 22px; display: flex; flex-direction: column; justify-content: center; }
+.card .nm { font-size: 21px; }
+.card .ds { margin-top: 3px; font-size: 17px; }
+.q { left: 196px; width: 520px; }
+.r { left: 800px; width: 340px; }
+.card .chip { position: absolute; right: 16px; top: 14px; }
+.foot { position: absolute; left: 64px; top: 782px; font-size: 17px; color: var(--muted); }
+.no { position: absolute; left: 150px; transform: translateY(-50%); padding: 2px 12px 3px; border-radius: 999px; }
+.yes { position: absolute; left: 716px; width: 66px; text-align: center; transform: translateY(-120%); }
+</style>
+</head>
+<body>
+<div class="sheet">
+<div class="item" id="room">
+  <div class="scenery" style="--cx: 120px; --cy: 130px"></div>
+  <div class="title eyebrow">Every second, Irys checks in this order</div>
+
+  <svg class="lines" viewBox="0 0 1200 830" aria-hidden="true">
+    <defs>
+      <symbol id="g-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></symbol>
+      <symbol id="g-key" viewBox="0 0 24 24"><rect x="2.5" y="6.5" width="19" height="11" rx="2.5"/><path d="M6.5 10.5h.01M10 10.5h.01M13.5 10.5h.01M17.5 10.5h.01M7.5 14h9"/></symbol>
+      <symbol id="g-full" viewBox="0 0 24 24"><path d="M4 9V5.5A1.5 1.5 0 0 1 5.5 4H9M15 4h3.5A1.5 1.5 0 0 1 20 5.5V9M20 15v3.5a1.5 1.5 0 0 1-1.5 1.5H15M9 20H5.5A1.5 1.5 0 0 1 4 18.5V15"/></symbol>
+    </defs>
+    <!-- spine -->
+    <g fill="none" stroke="url(#ringGrad)" stroke-width="4" stroke-linecap="round" class="glowline">
+      <path d="M120 168V235M120 315V380M120 460V525M120 605V670"/>
+    </g>
+    <g fill="var(--accent)">
+      <path d="M113 224l7 12 7-12z"/><path d="M113 369l7 12 7-12z"/><path d="M113 514l7 12 7-12z"/><path d="M113 659l7 12 7-12z"/>
+    </g>
+    <!-- branches -->
+    <g fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" class="glowline">
+      <path d="M716 275H782"/><path d="M716 420H782"/><path d="M716 565H782"/>
+    </g>
+    <g fill="var(--accent)"><path d="M780 267l14 8-14 8z"/><path d="M780 412l14 8-14 8z"/><path d="M780 557l14 8-14 8z"/></g>
+    <!-- nodes -->
+    <g>
+      <circle cx="120" cy="130" r="38" fill="var(--bg0)" stroke="url(#ringGrad)" stroke-width="3.5" class="glowline"/>
+      <g style="color:var(--accent)"><use href="#eye" x="94" y="104" width="52" height="52"/></g>
+      <g fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="120" cy="275" r="32" fill="var(--bg0)" stroke-width="3"/><use href="#g-moon" x="104" y="259" width="32" height="32"/>
+        <circle cx="120" cy="420" r="32" fill="var(--bg0)" stroke-width="3"/><use href="#g-key" x="104" y="404" width="32" height="32"/>
+        <circle cx="120" cy="565" r="32" fill="var(--bg0)" stroke-width="3"/><use href="#g-full" x="104" y="549" width="32" height="32"/>
+      </g>
+      <circle cx="120" cy="710" r="40" fill="url(#ringGrad)" class="glowline"/>
+      <g style="color:var(--on)"><use href="#eye" x="96" y="686" width="48" height="48"/></g>
+    </g>
+  </svg>
+
+  <div class="glass card q" style="top: 74px; height: 112px;"><div class="nm">Work interval is counting down</div><div class="ds">Each second, Irys runs three checks first.</div></div>
+
+  <div class="glass card q" style="top: 219px"><div class="nm">Did the computer sleep or hibernate?</div><div class="ds">Seen as a gap of 90 seconds or more between checks.</div></div>
+  <div class="glass card r" style="top: 219px"><div class="nm">Interval restarts</div><div class="ds">No stale reminder when you wake it.</div></div>
+  <div class="yes lbl" style="top: 275px">yes</div>
+
+  <div class="glass card q" style="top: 364px"><span class="chip">Windows</span><div class="nm">Away from the keyboard and mouse?</div><div class="ds">Idle for 1 minute or more. You can change the time.</div></div>
+  <div class="glass card r" style="top: 364px"><div class="nm">Interval resets</div><div class="ds">Your eyes already rested, so there is nothing to remind.</div></div>
+  <div class="yes lbl" style="top: 420px">yes</div>
+
+  <div class="glass card q" style="top: 509px"><span class="chip">Windows</span><div class="nm">At zero, with a full-screen app in front?</div><div class="ds">A call, a presentation or a game.</div></div>
+  <div class="glass card r" style="top: 509px"><div class="nm">Break waits</div><div class="ds">Checks again after the snooze time, 5 minutes by default.</div></div>
+  <div class="yes lbl" style="top: 565px">yes</div>
+
+  <div class="glass solid lit card q" style="top: 654px"><div class="nm">Otherwise, at zero: the break starts</div><div class="ds">The reminder appears, full screen or in the corner.</div></div>
+
+  <div class="glass no lbl" style="top: 202px">no</div>
+  <div class="glass no lbl" style="top: 347px">no</div>
+  <div class="glass no lbl" style="top: 492px">no</div>
+  <div class="glass no lbl" style="top: 637px">no</div>
+
+  <div class="foot">The away and full-screen checks each have a switch in Settings, both on by default.</div>
+</div>
+</div>
+</body>
+</html>
